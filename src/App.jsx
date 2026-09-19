@@ -1,16 +1,32 @@
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import './App.css'
-import ProductCard from './components/productCard'
+import ProductCard from './components/productCard' 
+import AdminPage from './pages/adminPage.jsx'
+import RegisterPage from './pages/RegisterPage.jsx'
+import LoginPage from './pages/LoginPage.jsx'
+import HomePage from './pages/homePage.jsx'
+import TestPage from './pages/test.jsx'
 
 function App() {
   
 
   return (
-    <>
-     <h1>Sachintha Nirwan</h1>
-     <ProductCard name = "Apple iPad" price="500" img="https://i5.walmartimages.com/seo/Apple-iPad-Pro-11-in-2388-x-1668-Tablet-128-GB-iOS-Wi-Fi-Space-Gray_557264e6-8f6a-4e49-a6e2-67ea6bd020f2.732406b13ec681976afe83e16a197f3a.jpeg"/>
-     <ProductCard name = "Samsung Galaxy Tab" price="600" img="https://smartzone.lk/public/uploads/202407/F9bwQomGgH-samsung-galaxy-tab-s9-fe-plus-10-.jpg"/>
-    </>
-  )
+   <BrowserRouter>  
+     <div className='w-full h-[100vh] bg-slate-500'> 
+          <Routes path="/">
+             <Route path='/*' element={<HomePage/>}/>
+             <Route path='/register' element={<RegisterPage/>}/>   
+             <Route path='/admin/*' element={<AdminPage/>}/>  
+             <Route path='/login' element={<LoginPage/>}/>  
+             <Route path='/test' element={<TestPage/>}/>  
+             <Route path='/*' element={<h1>404 Page Not Found</h1>}/>
+
+          </Routes> 
+     </div>
+   </BrowserRouter>
+  ) 
 }
 
 export default App 
+
+
