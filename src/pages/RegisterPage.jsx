@@ -16,7 +16,7 @@ export default function RegisterPage() {
     setTimeout(() => {
       setLoading(false);
       alert("Register API එක backend එකට connect කළාම මෙතැනින් account එක create වෙනවා.");
-    }, 800);
+    }, 800); 
   };
 
   return (

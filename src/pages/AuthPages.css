@@ -34,3 +34,4 @@
 @media(max-width:900px){.auth-shell{grid-template-columns:1fr;max-width:600px;min-height:auto}.auth-brand-panel{display:none}.mobile-brand{display:block;margin-bottom:30px}.mobile-brand .auth-logo{color:var(--brown)}.mobile-brand .auth-logo strong{color:var(--wine)}.mobile-brand .auth-logo small{color:#9b8778}.mobile-brand .auth-logo-mark{background:var(--wine);color:var(--goldLight)}.auth-form-panel{padding:38px 34px}}
 @media(max-width:560px){.auth-page{padding:14px}.auth-shell{border-radius:24px}.auth-form-panel{padding:30px 20px}.form-heading h2{font-size:27px}.two-fields{grid-template-columns:1fr;gap:14px}.form-options{align-items:flex-start;gap:12px}.forgot-link{white-space:nowrap}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+

@@ -1,20 +1,51 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { Eye, EyeOff, Mail, LockKeyhole, ArrowRight, Sparkles, Scissors, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff, Mail, LockKeyhole, ArrowRight, Sparkles, Scissors, ShieldCheck, CheckCircle2, User } from "lucide-react";
 import "./AuthPages.css";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate(); 
+  
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => { 
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      alert("Login API එක backend එකට connect කළාම මෙතැනින් login වෙනවා.");
-    }, 800);
-  };
+    
+
+    try {
+      const response = await axios.post(import.meta.env.VITE_API_URL+"/api/users/login", 
+        {
+          email: e.target.email.value,
+          password: e.target.password.value, 
+        }
+      );
+
+    console.log("Backend Response:", response.data);
+
+    localStorage.setItem("token", response.data.token); 
+    localStorage.setItem("user", JSON.stringify(response.data.user)); //------------------------ 
+    toast.success("Login successful!"); 
+    const user = response.data.user;
+     
+    if(user.role=='admin'){
+      navigate("/admin");
+    }else{
+      navigate("/"); 
+    }
+
+  } catch (error) {
+    console.error("Login Error:", error);
+
+    toast.error("Login failed. Please try again.")
+
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <main className="auth-page">
@@ -53,8 +84,20 @@ export default function LoginPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="auth-form">
-            <label className="field"><span>Email Address</span><div className="input-wrap"><Mail size={18}/><input type="email" placeholder="you@example.com" autoComplete="email" required/></div></label>
-            <label className="field"><span>Password</span><div className="input-wrap"><LockKeyhole size={18}/><input type={showPassword ? "text" : "password"} placeholder="••••••••" autoComplete="current-password" required/><button type="button" className="password-toggle" onClick={() => setShowPassword(v => !v)}>{showPassword ? <EyeOff size={18}/> : <Eye size={18}/>}</button></div></label>
+            <label className="field"><span>Email Address</span><div className="input-wrap"><Mail size={18}/><input
+              type="email"
+              name="email"
+              placeholder="you@example.com"
+              autoComplete="email"
+              required 
+            /></div></label>
+            <label className="field"><span>Password</span><div className="input-wrap"><LockKeyhole size={18}/><input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder="••••••••"
+              autoComplete="current-password"
+              required
+            /><button type="button" className="password-toggle" onClick={() => setShowPassword(v => !v)}>{showPassword ? <EyeOff size={18}/> : <Eye size={18}/>}</button></div></label>
 
             <div className="form-options">
               <label className="remember"><input type="checkbox"/><span className="custom-check">✓</span> Remember me</label>
