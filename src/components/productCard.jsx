@@ -1,4 +1,6 @@
-import { FaArrowRight, FaHeart } from "react-icons/fa";
+import { Link } from "react-router-dom";
+import { FaArrowRight } from "react-icons/fa";
+import { MdFavoriteBorder } from "react-icons/md";
 
 export default function ProductCard(props) {
   const product = props.product;
@@ -89,7 +91,7 @@ export default function ProductCard(props) {
             transition-all
           "
         >
-          <FaHeart size={14} />
+          <MdFavoriteBorder size={14} />
         </button>
 
         {/* IMAGE GRADIENT */}
@@ -205,31 +207,40 @@ export default function ProductCard(props) {
 
           {/* VIEW BUTTON */}
 
-          <button
+          <Link
+            to={"/overview/" + product.productId}
+            className="group/button w-11 h-11 rounded-xl bg-[#6b1d2f] text-[#f3d975] flex items-center justify-center shadow-md hover:bg-[#4b1020] hover:scale-110 transition-all"
+          >
+            <FaArrowRight className="group-hover/button:translate-x-1 transition-transform" />
+          </Link>
+
+          {/* <Link
+            to="/overview"
+            state={product}
             className="
-              group/button
-              w-11
-              h-11
-              rounded-xl
-              bg-[#6b1d2f]
-              text-[#f3d975]
-              flex
-              items-center
-              justify-center
-              shadow-md
-              hover:bg-[#4b1020]
-              hover:scale-110
-              transition-all
-            "
+      group/button
+      w-11
+      h-11
+      rounded-xl
+      bg-[#6b1d2f]
+      text-[#f3d975]
+      flex
+      items-center
+      justify-center
+      shadow-md
+      hover:bg-[#4b1020]
+      hover:scale-110
+      transition-all
+    "
             title="View Details"
           >
             <FaArrowRight
               className="
-                group-hover/button:translate-x-1
-                transition-transform
-              "
+        group-hover/button:translate-x-1
+        transition-transform
+      "
             />
-          </button>
+          </Link> */}
         </div>
       </div>
     </div>

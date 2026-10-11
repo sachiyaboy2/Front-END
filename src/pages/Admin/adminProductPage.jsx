@@ -497,7 +497,7 @@ export default function AdminProductPage() {
 
                 <th className="p-3">Price</th>
 
-                <th className="p-3 text-center">Label No</th>
+                <th className="p-3 text-center">Stocks</th>
 
                 <th className="p-3">Category</th>
 

@@ -1,15 +1,8 @@
-import {
-  FaHeart,
-  FaCut,
-  FaStar,
-  FaUsers,
-} from "react-icons/fa";
+import { FaHeart, FaCut, FaStar, FaUsers } from "react-icons/fa";
 
 export default function AboutPage() {
-
   return (
     <div className="w-full bg-[#f6ede2]">
-
       {/* =====================================================
           ABOUT HERO
       ===================================================== */}
@@ -22,7 +15,6 @@ export default function AboutPage() {
           py-20
         "
       >
-
         <div
           className="
             max-w-7xl
@@ -33,11 +25,11 @@ export default function AboutPage() {
             items-center
           "
         >
-
-          {/* LEFT */}
+          {/* =================================================
+              LEFT SIDE
+          ================================================= */}
 
           <div>
-
             <p
               className="
                 text-[#d99b21]
@@ -49,7 +41,6 @@ export default function AboutPage() {
             >
               About NariCraft
             </p>
-
 
             <h1
               className="
@@ -63,11 +54,8 @@ export default function AboutPage() {
             >
               Fashion Made
               <br />
-              <span className="text-[#d99b21]">
-                Personal.
-              </span>
+              <span className="text-[#d99b21]">Personal.</span>
             </h1>
-
 
             <p
               className="
@@ -77,11 +65,9 @@ export default function AboutPage() {
                 text-base
               "
             >
-              NariCraft කියන්නේ customer එකට තමන් කැමති විදිහට
-              ඇඳුමක් තෝරාගන්න සහ නිර්මාණය කරගන්න පහසු කරන
-              fashion platform එකක්.
+              NariCraft කියන්නේ customer එකට තමන් කැමති විදිහට ඇඳුමක් තෝරාගන්න
+              සහ නිර්මාණය කරගන්න පහසු කරන fashion platform එකක්.
             </p>
-
 
             <p
               className="
@@ -91,119 +77,81 @@ export default function AboutPage() {
                 text-base
               "
             >
-              Ready-made designs මිලදී ගැනීමටත්,
-              customerගේම design image එකක් upload කරලා
-              measurements අනුව custom tailoring service එකක්
-              ලබාගැනීමටත් NariCraft හරහා හැකියාව ලබාදීම
-              අපේ ප්‍රධාන අරමුණයි.
+              Ready-made designs මිලදී ගැනීමටත්, customerගේම design image එකක්
+              upload කරලා measurements අනුව custom tailoring service එකක්
+              ලබාගැනීමටත් NariCraft හරහා හැකියාව ලබාදීම අපේ ප්‍රධාන අරමුණයි.
             </p>
-
           </div>
 
-
-          {/* RIGHT */}
+          {/* =================================================
+              RIGHT SIDE IMAGE
+          ================================================= */}
 
           <div
             className="
-              bg-[#5b1a2b]
-              rounded-[35px]
-              p-10
-              min-h-[380px]
-              flex
-              items-center
-              justify-center
-              shadow-2xl
               relative
+              w-full
+              min-h-[380px]
+              sm:min-h-[420px]
+              lg:min-h-[430px]
+              rounded-[35px]
               overflow-hidden
+              border
+              border-[#d99b21]/30
+              shadow-[0_25px_60px_rgba(79,20,36,0.22)]
+              group
             "
           >
+            <img
+              src="/ab2.png"
+              alt="NariCraft Tailoring"
+              className="
+                absolute
+                inset-0
+                w-full
+                h-full
+                object-cover
+                object-center
+                transition-transform
+                duration-700
+                group-hover:scale-105
+              "
+            />
+
+            {/* SMALL DARK OVERLAY */}
 
             <div
               className="
                 absolute
-                w-[250px]
-                h-[250px]
-                rounded-full
-                bg-[#d99b21]/20
-                -top-16
-                -right-16
+                inset-0
+                bg-gradient-to-t
+                from-[#40101e]/20
+                via-transparent
+                to-transparent
+                pointer-events-none
               "
             />
-
-
-            <div className="text-center relative z-10">
-
-              <div
-                className="
-                  w-28
-                  h-28
-                  rounded-full
-                  bg-[#f6ede2]
-                  border-4
-                  border-[#d99b21]
-                  flex
-                  items-center
-                  justify-center
-                  mx-auto
-                "
-              >
-
-                <span
-                  className="
-                    text-4xl
-                    font-black
-                    text-[#5b1a2b]
-                  "
-                >
-                <img src="logo.png"/>
-                </span>
-
-              </div>
-
-
-              <h2
-                className="
-                  text-3xl
-                  font-black
-                  text-white
-                  mt-6
-                "
-              >
-                Nari
-                <span className="text-[#d99b21]">
-                  Craft
-                </span>
-              </h2>
-
-
-              <p
-                className="
-                  text-[#ead8cc]
-                  mt-3
-                "
-              >
-                Tailored for you • Crafted with love
-              </p>
-
-            </div>
-
           </div>
-
         </div>
-
       </section>
-
 
       {/* =====================================================
           OUR VALUES
       ===================================================== */}
 
-      <section className="bg-white px-6 md:px-12 lg:px-20 py-20">
-
+      <section
+        className="
+          bg-white
+          px-6
+          md:px-12
+          lg:px-20
+          py-20
+        "
+      >
         <div className="max-w-7xl mx-auto">
+          {/* TITLE */}
 
           <div className="text-center">
-
             <p
               className="
                 text-[#d99b21]
@@ -227,9 +175,9 @@ export default function AboutPage() {
             >
               Our Values
             </h2>
-
           </div>
 
+          {/* VALUES CARDS */}
 
           <div
             className="
@@ -240,79 +188,69 @@ export default function AboutPage() {
               mt-12
             "
           >
+            {/* CUSTOMER FIRST */}
 
             <div className="about-card">
-
               <FaHeart className="about-icon" />
 
-              <h3 className="about-title">
-                Customer First
-              </h3>
+              <h3 className="about-title">Customer First</h3>
 
               <p className="about-text">
                 Customerගේ අවශ්‍යතාවයට ගැළපෙන experience එකක් ලබාදීම.
               </p>
-
             </div>
 
+            {/* CUSTOM DESIGN */}
 
             <div className="about-card">
-
               <FaCut className="about-icon" />
 
-              <h3 className="about-title">
-                Custom Design
-              </h3>
+              <h3 className="about-title">Custom Design</h3>
 
               <p className="about-text">
                 ඔබගේම style එක measurements අනුව නිර්මාණය කිරීම.
               </p>
-
             </div>
 
+            {/* QUALITY */}
 
             <div className="about-card">
-
               <FaStar className="about-icon" />
 
-              <h3 className="about-title">
-                Quality
-              </h3>
+              <h3 className="about-title">Quality</h3>
 
               <p className="about-text">
                 Products වල quality සහ finishing පිළිබඳ අවධානය.
               </p>
-
             </div>
 
+            {/* TRUST */}
 
             <div className="about-card">
-
               <FaUsers className="about-icon" />
 
-              <h3 className="about-title">
-                Trust
-              </h3>
+              <h3 className="about-title">Trust</h3>
 
               <p className="about-text">
                 Customers සහ NariCraft අතර විශ්වාසදායක service එකක්.
               </p>
-
             </div>
-
           </div>
-
         </div>
-
       </section>
-
 
       {/* =====================================================
           MISSION
       ===================================================== */}
 
-      <section className="px-6 md:px-12 lg:px-20 py-20">
-
+      <section
+        className="
+          px-6
+          md:px-12
+          lg:px-20
+          py-20
+        "
+      >
         <div
           className="
             max-w-5xl
@@ -325,7 +263,6 @@ export default function AboutPage() {
             shadow-xl
           "
         >
-
           <p
             className="
               text-[#d99b21]
@@ -337,7 +274,6 @@ export default function AboutPage() {
           >
             Our Mission
           </p>
-
 
           <h2
             className="
@@ -351,7 +287,6 @@ export default function AboutPage() {
             Making Every Design Feel Personal
           </h2>
 
-
           <p
             className="
               text-[#ead8cc]
@@ -361,16 +296,12 @@ export default function AboutPage() {
               mt-5
             "
           >
-            Modern technology සහ tailoring එක එකතු කරලා,
-            customer කෙනෙකුට තමන්ගේ style එකට ගැළපෙන
-            outfit එකක් පහසුවෙන් order කරන්න පුළුවන් platform එකක්
-            නිර්මාණය කිරීම NariCraft හි අරමුණයි.
+            Modern technology සහ tailoring එක එකතු කරලා, customer කෙනෙකුට තමන්ගේ
+            style එකට ගැළපෙන outfit එකක් පහසුවෙන් order කරන්න පුළුවන් platform
+            එකක් නිර්මාණය කිරීම NariCraft හි අරමුණයි.
           </p>
-
         </div>
-
       </section>
-
 
       {/* =====================================================
           FOOTER
@@ -384,15 +315,10 @@ export default function AboutPage() {
           px-4
         "
       >
-
         <p className="text-[#ead8cc] text-sm">
-
           © 2026 NariCraft • Tailored for you • Crafted with love
-
         </p>
-
       </footer>
-
 
       {/* =====================================================
           SMALL CSS
@@ -411,6 +337,7 @@ export default function AboutPage() {
         .about-card:hover {
           transform: translateY(-7px);
           box-shadow: 0 18px 35px rgba(80, 20, 35, 0.12);
+          border-color: #d99b21;
         }
 
         .about-icon {
@@ -433,7 +360,6 @@ export default function AboutPage() {
         }
 
       `}</style>
-
     </div>
   );
 }

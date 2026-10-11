@@ -1,91 +1,148 @@
-import { Link, Route, Routes } from "react-router-dom";
+import { Link, Route, Routes, Navigate } from "react-router-dom";
+
 import Header from "../components/header";
 import AboutPage from "./AboutPage";
-
-import {
-  FaArrowRight,
-  FaShoppingBag,
-  FaStar,
-} from "react-icons/fa";
-import { GiLargeDress } from "react-icons/gi";
 import { ProductPage } from "./productPage";
+import ProductOverView from "./productOverView";
 
+import { FaArrowRight, FaShoppingBag, FaStar, FaTruck } from "react-icons/fa";
+
+import { GiLargeDress } from "react-icons/gi";
+
+import { FiUploadCloud, FiScissors, FiCheckCircle } from "react-icons/fi";
+
+import { TbRulerMeasure } from "react-icons/tb";
+import CartPage from "./cart";
+import CheckOutPage from "./checkOut";
+import UserData from "../components/userData";
+
+function ProtectedRoute({ children }) {
+  const token = localStorage.getItem("token");
+
+  if (token == null) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+}
 
 export default function HomePage() {
-
   return (
     <div className="w-full min-h-screen bg-primary">
+      {/* =====================================================
+          HEADER
+      ===================================================== */}
 
-      {/* HEADER */}
       <Header />
 
+      {/* =====================================================
+          PAGES
+      ===================================================== */}
 
-      {/* PAGES */}
       <Routes>
-
         {/* HOME */}
-        <Route
-          index
-          element={<HomeContent />}
-        />
 
+        <Route index element={<HomeContent />} />
 
         {/* PRODUCTS */}
+
+        <Route path="products" element={<ProductPage />} />
+
+        {/* ABOUT */}
+
+        <Route path="about" element={<AboutPage />} />
+
+        {/* CART */}
+
         <Route
-          path="products"
-          element={<ProductPage/>
+          path="cart"
+          element={
+            <ProtectedRoute>
+              <CartPage />
+            </ProtectedRoute>
           }
         />
 
-
         {/* ORDERS */}
+
         <Route
           path="orders"
           element={
-            <div className="p-10">
-              <h1 className="text-3xl font-bold text-[#5b1a2b]">
-                Orders Page
-              </h1>
-            </div>
+            <ProtectedRoute>
+              {" "}
+              <div className="p-10">
+                <h1 className="text-3xl font-bold text-[#5b1a2b]">Oder Page</h1>
+              </div>
+            </ProtectedRoute>
           }
         />
 
+        {/* PRODUCT OVERVIEW */}
 
-        {/* ABOUT */}
         <Route
-          path="about"
-          element={<AboutPage />}
+          path="overview/:id"
+          element={
+            <ProtectedRoute>
+              <ProductOverView />
+            </ProtectedRoute>
+          }
         />
 
+        {/* CHECKOUT */}
+
+        <Route
+          path="checkout"
+          element={
+            <ProtectedRoute>
+              <CheckOutPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="profile"
+          element={
+            <ProtectedRoute>
+              <UserData />
+            </ProtectedRoute>
+          }
+        />
 
         {/* 404 */}
+
         <Route
           path="*"
           element={
-            <div className="p-10">
-              <h1 className="text-3xl font-bold text-red-700">
-                404 Page Not Found
-              </h1>
-            </div>
+            <ProtectedRoute>
+              <div className="p-10">
+                <h1 className="text-3xl font-bold text-red-700">
+                  404 Page Not Found
+                </h1>
+              </div>
+            </ProtectedRoute>
           }
         />
-
       </Routes>
-
     </div>
   );
 }
 
-
+// ============================================================================
+// HOME CONTENT
+// ============================================================================
 
 function HomeContent() {
-
   return (
-    <div className="w-full overflow-hidden">
-
-      {/* =====================================================
-          HERO
-      ===================================================== */}
+    <div
+      className="
+        w-full
+        overflow-hidden
+        bg-[#faf7f2]
+      "
+    >
+      {/* =====================================================================
+          HERO SECTION
+      ===================================================================== */}
 
       <section
         className="
@@ -101,8 +158,9 @@ function HomeContent() {
           items-center
         "
       >
-
-        {/* BACKGROUND DECORATION */}
+        {/* =================================================
+            BACKGROUND DECORATION
+        ================================================= */}
 
         <div
           className="
@@ -132,12 +190,12 @@ function HomeContent() {
           "
         />
 
-
         {/* =================================================
             LEFT SIDE
         ================================================= */}
 
         <div className="relative z-10">
+          {/* WELCOME BADGE */}
 
           <div
             className="
@@ -154,7 +212,6 @@ function HomeContent() {
               mb-5
             "
           >
-
             <FaStar className="text-[#d99b21]" />
 
             <span
@@ -168,9 +225,9 @@ function HomeContent() {
             >
               Welcome to NariCraft
             </span>
-
           </div>
 
+          {/* MAIN TITLE */}
 
           <h1
             className="
@@ -182,21 +239,14 @@ function HomeContent() {
               text-[#4b1020]
             "
           >
-
             Your Fashion.
-
             <br />
-
             Your Design.
-
             <br />
-
-            <span className="text-[#d99b21]">
-              Your Story.
-            </span>
-
+            <span className="text-[#d99b21]">Your Story.</span>
           </h1>
 
+          {/* DESCRIPTION */}
 
           <p
             className="
@@ -208,16 +258,22 @@ function HomeContent() {
               leading-8
             "
           >
-            ඔබට කැමති NariCraft design එකක් තෝරාගන්න.
-            නැත්නම් ඔබගේම design එක upload කරලා,
-            measurements වලට ගැළපෙන custom outfit එකක්
-            නිර්මාණය කරගන්න.
+            ඔබට කැමති NariCraft design එකක් තෝරාගන්න. නැත්නම් ඔබගේම design එක
+            upload කරලා, measurements වලට ගැළපෙන custom outfit එකක් නිර්මාණය
+            කරගන්න.
           </p>
-
 
           {/* BUTTONS */}
 
-          <div className="flex flex-wrap gap-4 mt-8">
+          <div
+            className="
+              flex
+              flex-wrap
+              gap-4
+              mt-8
+            "
+          >
+            {/* PRODUCTS */}
 
             <Link
               to="/products"
@@ -239,20 +295,17 @@ function HomeContent() {
                 duration-300
               "
             >
-
               <FaShoppingBag />
-
               Explore Products
-
               <FaArrowRight
                 className="
                   group-hover:translate-x-1
                   transition-transform
                 "
               />
-
             </Link>
 
+            {/* ABOUT */}
 
             <Link
               to="/about"
@@ -274,15 +327,11 @@ function HomeContent() {
             >
               About Us
             </Link>
-
           </div>
-
         </div>
 
-
-
         {/* =================================================
-            RIGHT SIDE - MODERN 3D LOOK
+            RIGHT SIDE - OUR PHOTO 3D CARD
         ================================================= */}
 
         <div
@@ -294,8 +343,7 @@ function HomeContent() {
             justify-center
           "
         >
-
-          {/* BACK CARD */}
+          {/* GOLD BACK CARD */}
 
           <div
             className="
@@ -311,8 +359,7 @@ function HomeContent() {
             "
           />
 
-
-          {/* SECOND BACK CARD */}
+          {/* WINE BACK CARD */}
 
           <div
             className="
@@ -327,7 +374,6 @@ function HomeContent() {
               shadow-2xl
             "
           />
-
 
           {/* MAIN CARD */}
 
@@ -353,11 +399,15 @@ function HomeContent() {
               hover:scale-[1.03]
             "
           >
+            {/* TOP */}
 
-            {/* LOGO */}
-
-            <div className="flex justify-between items-center">
-
+            <div
+              className="
+                flex
+                justify-between
+                items-center
+              "
+            >
               <div
                 className="
                   w-12
@@ -369,15 +419,11 @@ function HomeContent() {
                   flex
                   items-center
                   justify-center
+                  overflow-hidden
                 "
               >
-
-                <span className="font-black text-[#5b1a2b]">
-                  <img src="./logo.png" className='h-[70%]' alt='Logo' />
-                </span>
-
+                <img src="/logo.png" className="h-[70%]" alt="NariCraft Logo" />
               </div>
-
 
               <span
                 className="
@@ -389,43 +435,38 @@ function HomeContent() {
               >
                 NARICRAFT
               </span>
-
             </div>
 
-
-            {/* DRESS STYLE SHAPE */}
+            {/* PRODUCT PHOTO */}
 
             <div
-  className="
-    h-[235px]
-    flex
-    items-center
-    justify-center
-    overflow-hidden
-    rounded-[28px]
-    border-2
-    border-[#d99b21]/50
-    shadow-[0_18px_40px_rgba(91,26,43,0.28)]
-    bg-[#f6ede2]
-    group
-  "
->
-  <img
-    src="/sarii.png"
-    alt="NariCraft Saree"
-    className="
-      w-full
-      h-full
-      object-cover
-      transition-all
-      duration-700
-      group-hover:scale-110
-    "
-  />
-</div>
-
-            
-
+              className="
+                h-[235px]
+                flex
+                items-center
+                justify-center
+                overflow-hidden
+                rounded-[28px]
+                border-2
+                border-[#d99b21]/50
+                shadow-[0_18px_40px_rgba(91,26,43,0.28)]
+                bg-[#f6ede2]
+                group
+              "
+            >
+              <img
+                src="/sarii.png"
+                alt="NariCraft Saree"
+                className="
+                  w-full
+                  h-full
+                  object-cover
+                  transition-all
+                  duration-700
+                  group-hover:scale-110
+                "
+              />
+            </div>
 
             <p
               className="
@@ -433,11 +474,11 @@ function HomeContent() {
                 text-xs
                 tracking-[0.18em]
                 font-bold
+                mt-3
               "
             >
               CUSTOM COLLECTION
             </p>
-
 
             <h2
               className="
@@ -449,9 +490,7 @@ function HomeContent() {
             >
               Made Just For You
             </h2>
-
           </div>
-
 
           {/* FLOATING CUSTOM CARD */}
 
@@ -462,7 +501,7 @@ function HomeContent() {
               left-0
               lg:left-3
               top-16
-              bg-white/80
+              bg-white/85
               backdrop-blur-md
               border
               border-white
@@ -475,7 +514,6 @@ function HomeContent() {
               animate-[bounce_4s_infinite]
             "
           >
-
             <div
               className="
                 w-10
@@ -488,125 +526,814 @@ function HomeContent() {
                 justify-center
               "
             >
-
               <GiLargeDress />
-
             </div>
 
             <div>
+              <p className="text-xs font-bold text-[#5b1a2b]">Custom Fit</p>
 
-              <p className="text-xs font-bold text-[#5b1a2b]">
-                Custom Fit
-              </p>
-
-              <p className="text-[10px] text-[#8a7568]">
-                Made to measure
-              </p>
-
+              <p className="text-[10px] text-[#8a7568]">Made to measure</p>
             </div>
-
           </div>
-
         </div>
-
       </section>
 
-
-
-      {/* =====================================================
-          SMALL BOTTOM SECTION
-      ===================================================== */}
+      {/* =====================================================================
+          SIMPLE STEPS
+      ===================================================================== */}
 
       <section
         className="
-          max-w-6xl
-          mx-auto
-          px-6
-          pb-16
+          relative
+          py-24
+          bg-white
+          overflow-hidden
         "
       >
+        {/* BACKGROUND */}
 
         <div
           className="
-            bg-[#5b1a2b]
-            rounded-[28px]
-            p-6
-            grid
-            md:grid-cols-3
-            gap-4
-            shadow-xl
+            absolute
+            -top-24
+            -right-24
+            w-72
+            h-72
+            rounded-full
+            bg-[#d4af37]/10
+            blur-3xl
+          "
+        />
+
+        <div
+          className="
+            absolute
+            -bottom-32
+            -left-24
+            w-80
+            h-80
+            rounded-full
+            bg-[#6b1d2f]/5
+            blur-3xl
+          "
+        />
+
+        <div
+          className="
+            relative
+            z-10
+            max-w-7xl
+            mx-auto
+            px-6
           "
         >
+          {/* SECTION TITLE */}
 
           <div
             className="
-              p-5
-              rounded-2xl
-              hover:bg-white/10
-              transition-all
+              text-center
+              max-w-2xl
+              mx-auto
             "
           >
-            <p className="text-[#d99b21] font-black text-lg">
-              01
-            </p>
+            <span
+              className="
+                inline-block
+                px-4
+                py-2
+                rounded-full
+                bg-[#f8f0e5]
+                border
+                border-[#d4af37]/30
+                text-[10px]
+                font-black
+                tracking-[3px]
+                text-[#6b1d2f]
+              "
+            >
+              SIMPLE STEPS
+            </span>
 
-            <h3 className="text-white font-bold mt-2">
-              Choose
-            </h3>
+            <h2
+              className="
+                mt-5
+                text-3xl
+                sm:text-4xl
+                font-black
+                text-[#4b1020]
+              "
+            >
+              NariCraft වෙතින්
+              <span className="text-[#d4af37]"> මසා ගන්නේ කෙසේද?</span>
+            </h2>
 
-            <p className="text-[#dcc9bf] text-xs mt-1">
-              Select your favourite design.
+            <p
+              className="
+                mt-4
+                text-sm
+                md:text-base
+                text-[#806b5e]
+                leading-7
+              "
+            >
+              ඔබේ design එක තෝරාගැනීමේ සිට නිමවූ ඇඳුම ඔබේ අතට ලැබෙන තෙක් සරල
+              පියවර තුනක්.
             </p>
           </div>
 
+          {/* STEP CARDS */}
 
           <div
             className="
-              p-5
-              rounded-2xl
-              hover:bg-white/10
-              transition-all
+              grid
+              md:grid-cols-3
+              gap-7
+              mt-14
             "
           >
-            <p className="text-[#d99b21] font-black text-lg">
-              02
-            </p>
+            {/* =================================================
+                STEP 01
+            ================================================= */}
 
-            <h3 className="text-white font-bold mt-2">
-              Customize
-            </h3>
+            <div
+              className="
+                group
+                relative
+                bg-[#faf7f2]
+                border
+                border-[#eadfd2]
+                rounded-[28px]
+                p-7
+                overflow-hidden
+                hover:-translate-y-2
+                hover:shadow-[0_20px_45px_rgba(91,26,43,0.12)]
+                transition-all
+                duration-300
+              "
+            >
+              <span
+                className="
+                  absolute
+                  -right-2
+                  -top-6
+                  text-[95px]
+                  font-black
+                  text-[#6b1d2f]/5
+                "
+              >
+                01
+              </span>
 
-            <p className="text-[#dcc9bf] text-xs mt-1">
-              Add your measurements and style.
-            </p>
+              <div
+                className="
+                  relative
+                  w-14
+                  h-14
+                  rounded-2xl
+                  bg-[#6b1d2f]
+                  text-[#d4af37]
+                  flex
+                  items-center
+                  justify-center
+                  shadow-lg
+                  group-hover:rotate-6
+                  group-hover:scale-110
+                  transition-all
+                "
+              >
+                <FiUploadCloud size={26} />
+              </div>
+
+              <p
+                className="
+                  mt-7
+                  text-[10px]
+                  tracking-[3px]
+                  font-black
+                  text-[#d4af37]
+                "
+              >
+                STEP 01
+              </p>
+
+              <h3
+                className="
+                  mt-2
+                  text-xl
+                  font-black
+                  text-[#4b1020]
+                "
+              >
+                Design එක තෝරන්න
+              </h3>
+
+              <p
+                className="
+                  mt-3
+                  text-sm
+                  text-[#806b5e]
+                  leading-7
+                "
+              >
+                අපගේ collection එකෙන් ඔබට කැමති design එකක් තෝරාගන්න, නැත්නම්
+                ඔබගේම design photo එකක් ලබාදෙන්න.
+              </p>
+            </div>
+
+            {/* =================================================
+                STEP 02
+            ================================================= */}
+
+            <div
+              className="
+                group
+                relative
+                bg-[#faf7f2]
+                border
+                border-[#eadfd2]
+                rounded-[28px]
+                p-7
+                overflow-hidden
+                hover:-translate-y-2
+                hover:shadow-[0_20px_45px_rgba(91,26,43,0.12)]
+                transition-all
+                duration-300
+              "
+            >
+              <span
+                className="
+                  absolute
+                  -right-2
+                  -top-6
+                  text-[95px]
+                  font-black
+                  text-[#6b1d2f]/5
+                "
+              >
+                02
+              </span>
+
+              <div
+                className="
+                  relative
+                  w-14
+                  h-14
+                  rounded-2xl
+                  bg-[#6b1d2f]
+                  text-[#d4af37]
+                  flex
+                  items-center
+                  justify-center
+                  shadow-lg
+                  group-hover:rotate-6
+                  group-hover:scale-110
+                  transition-all
+                "
+              >
+                <TbRulerMeasure size={28} />
+              </div>
+
+              <p
+                className="
+                  mt-7
+                  text-[10px]
+                  tracking-[3px]
+                  font-black
+                  text-[#d4af37]
+                "
+              >
+                STEP 02
+              </p>
+
+              <h3
+                className="
+                  mt-2
+                  text-xl
+                  font-black
+                  text-[#4b1020]
+                "
+              >
+                මිනුම් ලබාදෙන්න
+              </h3>
+
+              <p
+                className="
+                  mt-3
+                  text-sm
+                  text-[#806b5e]
+                  leading-7
+                "
+              >
+                Standard size එකක් තෝරාගන්න හෝ ඔබගේම body measurements ලබාදී
+                custom fitting එකක් සකස් කරගන්න.
+              </p>
+            </div>
+
+            {/* =================================================
+                STEP 03
+            ================================================= */}
+
+            <div
+              className="
+                group
+                relative
+                bg-[#faf7f2]
+                border
+                border-[#eadfd2]
+                rounded-[28px]
+                p-7
+                overflow-hidden
+                hover:-translate-y-2
+                hover:shadow-[0_20px_45px_rgba(91,26,43,0.12)]
+                transition-all
+                duration-300
+              "
+            >
+              <span
+                className="
+                  absolute
+                  -right-2
+                  -top-6
+                  text-[95px]
+                  font-black
+                  text-[#6b1d2f]/5
+                "
+              >
+                03
+              </span>
+
+              <div
+                className="
+                  relative
+                  w-14
+                  h-14
+                  rounded-2xl
+                  bg-[#6b1d2f]
+                  text-[#d4af37]
+                  flex
+                  items-center
+                  justify-center
+                  shadow-lg
+                  group-hover:rotate-6
+                  group-hover:scale-110
+                  transition-all
+                "
+              >
+                <FiScissors size={26} />
+              </div>
+
+              <p
+                className="
+                  mt-7
+                  text-[10px]
+                  tracking-[3px]
+                  font-black
+                  text-[#d4af37]
+                "
+              >
+                STEP 03
+              </p>
+
+              <h3
+                className="
+                  mt-2
+                  text-xl
+                  font-black
+                  text-[#4b1020]
+                "
+              >
+                අපි නිමකරමු
+              </h3>
+
+              <p
+                className="
+                  mt-3
+                  text-sm
+                  text-[#806b5e]
+                  leading-7
+                "
+              >
+                ඔබ තෝරාගත් design එක සහ measurements අනුව NariCraft ඔබේ outfit
+                එක අලංකාරව නිමකරයි.
+              </p>
+            </div>
           </div>
-
-
-          <div
-            className="
-              p-5
-              rounded-2xl
-              hover:bg-white/10
-              transition-all
-            "
-          >
-            <p className="text-[#d99b21] font-black text-lg">
-              03
-            </p>
-
-            <h3 className="text-white font-bold mt-2">
-              Wear
-            </h3>
-
-            <p className="text-[#dcc9bf] text-xs mt-1">
-              Enjoy something made for you.
-            </p>
-          </div>
-
         </div>
-
       </section>
 
+      {/* =====================================================================
+          WHY CHOOSE NARICRAFT
+      ===================================================================== */}
+
+      <section
+        className="
+          py-20
+          bg-[#efe7db]
+        "
+      >
+        <div
+          className="
+            max-w-7xl
+            mx-auto
+            px-6
+          "
+        >
+          {/* TITLE */}
+
+          <div
+            className="
+              text-center
+              mb-12
+            "
+          >
+            <p
+              className="
+                text-[10px]
+                font-black
+                tracking-[3px]
+                text-[#6b1d2f]
+              "
+            >
+              WHY NARICRAFT
+            </p>
+
+            <h2
+              className="
+                mt-3
+                text-3xl
+                font-black
+                text-[#4b1020]
+              "
+            >
+              Crafted Around You
+            </h2>
+          </div>
+
+          <div
+            className="
+              grid
+              md:grid-cols-3
+              gap-6
+            "
+          >
+            {/* PERFECT FIT */}
+
+            <div
+              className="
+                group
+                bg-white/70
+                backdrop-blur-md
+                border
+                border-white
+                rounded-[26px]
+                p-7
+                hover:bg-white
+                hover:-translate-y-2
+                hover:shadow-xl
+                transition-all
+                duration-300
+              "
+            >
+              <div
+                className="
+                  w-14
+                  h-14
+                  rounded-2xl
+                  bg-[#6b1d2f]
+                  text-[#d4af37]
+                  flex
+                  items-center
+                  justify-center
+                "
+              >
+                <FiCheckCircle size={27} />
+              </div>
+
+              <h3
+                className="
+                  mt-5
+                  text-lg
+                  font-black
+                  text-[#4b1020]
+                "
+              >
+                Perfect Fitting
+              </h3>
+
+              <p
+                className="
+                  mt-3
+                  text-sm
+                  leading-7
+                  text-[#806b5e]
+                "
+              >
+                ඔබගේ measurements අනුව ඔබට ගැළපෙන comfortable සහ beautiful
+                fitting එකක්.
+              </p>
+            </div>
+
+            {/* QUALITY */}
+
+            <div
+              className="
+                group
+                bg-white/70
+                backdrop-blur-md
+                border
+                border-white
+                rounded-[26px]
+                p-7
+                hover:bg-white
+                hover:-translate-y-2
+                hover:shadow-xl
+                transition-all
+                duration-300
+              "
+            >
+              <div
+                className="
+                  w-14
+                  h-14
+                  rounded-2xl
+                  bg-[#6b1d2f]
+                  text-[#d4af37]
+                  flex
+                  items-center
+                  justify-center
+                "
+              >
+                <FiScissors size={27} />
+              </div>
+
+              <h3
+                className="
+                  mt-5
+                  text-lg
+                  font-black
+                  text-[#4b1020]
+                "
+              >
+                Quality Craftsmanship
+              </h3>
+
+              <p
+                className="
+                  mt-3
+                  text-sm
+                  leading-7
+                  text-[#806b5e]
+                "
+              >
+                සෑම design එකක්ම attention to detail සහ quality finish එකක් සමඟ
+                නිමකරයි.
+              </p>
+            </div>
+
+            {/* DELIVERY */}
+
+            <div
+              className="
+                group
+                bg-white/70
+                backdrop-blur-md
+                border
+                border-white
+                rounded-[26px]
+                p-7
+                hover:bg-white
+                hover:-translate-y-2
+                hover:shadow-xl
+                transition-all
+                duration-300
+              "
+            >
+              <div
+                className="
+                  w-14
+                  h-14
+                  rounded-2xl
+                  bg-[#6b1d2f]
+                  text-[#d4af37]
+                  flex
+                  items-center
+                  justify-center
+                "
+              >
+                <FaTruck size={24} />
+              </div>
+
+              <h3
+                className="
+                  mt-5
+                  text-lg
+                  font-black
+                  text-[#4b1020]
+                "
+              >
+                Islandwide Delivery
+              </h3>
+
+              <p
+                className="
+                  mt-3
+                  text-sm
+                  leading-7
+                  text-[#806b5e]
+                "
+              >
+                ඔබගේ order එක ශ්‍රී ලංකාව පුරා ආරක්ෂිතව ඔබේ නිවසටම ලබාගන්න.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* =====================================================================
+          CUSTOM DESIGN CTA
+      ===================================================================== */}
+
+      <section
+        className="
+          py-24
+          bg-[#faf7f2]
+        "
+      >
+        <div
+          className="
+            max-w-7xl
+            mx-auto
+            px-6
+          "
+        >
+          <div
+            className="
+              relative
+              overflow-hidden
+              rounded-[36px]
+              bg-gradient-to-r
+              from-[#6b1d2f]
+              via-[#511426]
+              to-[#350b17]
+              p-8
+              sm:p-12
+              lg:p-16
+              shadow-[0_25px_70px_rgba(75,16,32,0.28)]
+              border
+              border-[#d4af37]/30
+            "
+          >
+            {/* DECORATIONS */}
+
+            <div
+              className="
+                absolute
+                -right-24
+                -top-24
+                w-80
+                h-80
+                rounded-full
+                border
+                border-[#d4af37]/20
+              "
+            />
+
+            <div
+              className="
+                absolute
+                -right-5
+                -top-5
+                w-40
+                h-40
+                rounded-full
+                border
+                border-[#d4af37]/10
+              "
+            />
+
+            <div
+              className="
+                absolute
+                -left-24
+                -bottom-32
+                w-96
+                h-96
+                rounded-full
+                border
+                border-[#d4af37]/10
+              "
+            />
+
+            <div
+              className="
+                relative
+                z-10
+                grid
+                lg:grid-cols-2
+                gap-10
+                items-center
+              "
+            >
+              {/* LEFT */}
+
+              <div>
+                <span
+                  className="
+                    text-[#d4af37]
+                    text-[10px]
+                    tracking-[3px]
+                    font-bold
+                  "
+                >
+                  HAVE YOUR OWN DESIGN?
+                </span>
+
+                <h2
+                  className="
+                    mt-4
+                    text-4xl
+                    sm:text-5xl
+                    font-black
+                    text-white
+                    leading-tight
+                  "
+                >
+                  Turn Your Idea
+                  <br />
+                  <span
+                    className="
+                      text-[#d4af37]
+                    "
+                  >
+                    Into Reality.
+                  </span>
+                </h2>
+
+                <p
+                  className="
+                    mt-5
+                    text-[#e5d2c3]
+                    text-sm
+                    md:text-base
+                    leading-7
+                    max-w-lg
+                  "
+                >
+                  ඔබගේ phone එකේ තියෙන design photo එක ලබාදී, measurements සහ
+                  අවශ්‍ය විස්තර අපට ලබාදෙන්න. NariCraft එය ඔබ වෙනුවෙන් නිමකරයි.
+                </p>
+              </div>
+
+              {/* RIGHT BUTTON */}
+
+              <div
+                className="
+                  lg:flex
+                  lg:justify-end
+                "
+              >
+                {/*
+                  Custom Design page එක හදපු පස්සේ
+                  to="/products" වෙනුවට
+                  to="/custom-design" දාන්න.
+                */}
+
+                <Link
+                  to="/products"
+                  className="
+                    group
+                    inline-flex
+                    items-center
+                    gap-3
+                    px-8
+                    py-4
+                    rounded-2xl
+                    bg-[#d4af37]
+                    text-[#3b0d19]
+                    font-black
+                    text-sm
+                    shadow-xl
+                    hover:-translate-y-1
+                    hover:shadow-2xl
+                    hover:scale-[1.02]
+                    transition-all
+                    duration-300
+                  "
+                >
+                  <FiUploadCloud size={20} />
+                  Explore Designs
+                  <FaArrowRight
+                    className="
+                      group-hover:translate-x-1
+                      transition-transform
+                    "
+                  />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

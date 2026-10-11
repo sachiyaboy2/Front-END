@@ -1,13 +1,50 @@
 import { BsBox2HeartFill, BsCartCheckFill } from "react-icons/bs";
 import { FaUsers } from "react-icons/fa";
 import { MdDashboard } from "react-icons/md";
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link, useNavigate } from "react-router-dom";
 import AdminProductPage from "./Admin/adminProductPage";
 import AddProductPage from "./Admin/AdminAddNewProduct";
 import { IoIosHome } from "react-icons/io";
 import AdminUpdateProduct from "./Admin/AdminUpdateProduct";
+import AdminOrdersPage from "./Admin/AddminOrdersPage";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { Loader } from "../components/loader";
 
 export default function AdminPage() {
+  const navigate = useNavigate();
+  const [userLoaderd, setUserLoaderd] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token == null) {
+      toast.error("Please Login to access admin pannel");
+      navigate("/login");
+      return;
+    }
+    axios
+      .get(import.meta.env.VITE_API_URL + "/api/users/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => {
+        if (res.data.role !== "admin") {
+          toast.error("You are not authorized to access admin pannel");
+          navigate("/");
+          return;
+        }
+        setUserLoaderd(true);
+      })
+      .catch((err) => {
+        console.log(err);
+        toast.error("Please Login to access admin pannel");
+        localStorage.removeItem("token");
+        navigate("/login");
+      });
+  }, []);
+
   return (
     <div
       className="
@@ -326,75 +363,79 @@ export default function AdminPage() {
             overflow-y-auto
           "
         >
-          <Routes>
-            {/* DASHBOARD */}
+          {userLoaderd ? (
+            <Routes>
+              {/* DASHBOARD */}
 
-            <Route
-              path="/"
-              element={
-                <div className="p-4">
-                  <h1
-                    className="
+              <Route
+                path="/"
+                element={
+                  <div className="p-4">
+                    <h1
+                      className="
                       text-2xl
                       font-bold
                       text-accent
                     "
+                    >
+                      Admin Board
+                    </h1>
+                  </div>
+                }
+              />
+
+              {/* PRODUCTS */}
+
+              <Route path="/products" element={<AdminProductPage />} />
+
+              {/* ORDERS */}
+
+              <Route
+                path="/orders"
+                element={
+                  <div
+                    className="
+                    p-4
+                    text-accent
+                    font-bold
+                  "
                   >
-                    Admin Board
-                  </h1>
-                </div>
-              }
-            />
+                    <AdminOrdersPage />
+                  </div>
+                }
+              />
 
-            {/* PRODUCTS */}
+              {/* USERS */}
 
-            <Route path="/products" element={<AdminProductPage />} />
-
-            {/* ORDERS */}
-
-            <Route
-              path="/orders"
-              element={
-                <div
-                  className="
+              <Route
+                path="/users"
+                element={
+                  <div
+                    className="
                     p-4
                     text-accent
                     font-bold
                   "
-                >
-                  Orders
-                </div>
-              }
-            />
+                  >
+                    Users
+                  </div>
+                }
+              />
 
-            {/* USERS */}
+              {/* ADD PRODUCT */}
 
-            <Route
-              path="/users"
-              element={
-                <div
-                  className="
-                    p-4
-                    text-accent
-                    font-bold
-                  "
-                >
-                  Users
-                </div>
-              }
-            />
+              <Route path="/add-product" element={<AddProductPage />} />
 
-            {/* ADD PRODUCT */}
+              {/* UPDATE PRODUCT */}
 
-            <Route path="/add-product" element={<AddProductPage />} />
-
-            {/* UPDATE PRODUCT */}
-
-            <Route
-              path="update-product/:productId"
-              element={<AdminUpdateProduct />}
-            />
-          </Routes>
+              <Route
+                path="update-product/:productId"
+                element={<AdminUpdateProduct />}
+              />
+            </Routes>
+          ) : (
+            <Loader />
+          )}
         </div>
       </div>
     </div>

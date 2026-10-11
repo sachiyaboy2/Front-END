@@ -20,6 +20,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 
 import MediaUploader from "../../utils/mediaUpload";
+import { CiBoxes } from "react-icons/ci";
 
 export default function AdminUpdateProduct() {
   // =====================================================
@@ -923,9 +924,9 @@ export default function AdminUpdateProduct() {
                         text-[#b88f25]
                       "
                     >
-                      <Tag size={18} />
+                      <CiBoxes size={18} />
                     </span>
-                    Label Number
+                    Stocks
                   </span>
 
                   <input

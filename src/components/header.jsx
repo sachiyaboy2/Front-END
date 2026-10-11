@@ -1,21 +1,72 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+
+import axios from "axios";
+
 import { NavLink, Link, useNavigate } from "react-router-dom";
+
+import { FaShoppingCart } from "react-icons/fa";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  const [user, setUser] = useState(null);
+
   const navigate = useNavigate();
 
   // =====================================================
-  // AUTH DETAILS
+  // TOKEN
   // =====================================================
 
   const token = localStorage.getItem("token");
 
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  // =====================================================
+  // GET LOGGED USER
+  // =====================================================
 
-  // User first name
-  const firstName = (user?.fullName || user?.name || user?.firstName || "")
+  useEffect(() => {
+    if (token == null) {
+      setUser(null);
+
+      return;
+    }
+
+    axios
+      .get(
+        import.meta.env.VITE_API_URL + "/api/users/me",
+
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      )
+
+      .then((res) => {
+        console.log("Logged User:", res.data);
+
+        setUser(res.data);
+
+        localStorage.setItem("user", JSON.stringify(res.data));
+      })
+
+      .catch((err) => {
+        console.log("Get User Error:", err);
+
+        if (err.response?.status === 401 || err.response?.status === 403) {
+          localStorage.removeItem("token");
+
+          localStorage.removeItem("user");
+
+          setUser(null);
+        }
+      });
+  }, [token]);
+
+  // =====================================================
+  // FIRST NAME
+  // =====================================================
+
+  const firstName = (user?.fullName || user?.name || user?.firstName || "User")
     .trim()
     .split(" ")[0];
 
@@ -34,6 +85,8 @@ export default function Header() {
     localStorage.removeItem("token");
 
     localStorage.removeItem("user");
+
+    setUser(null);
 
     setIsMenuOpen(false);
 
@@ -55,10 +108,14 @@ export default function Header() {
       path: "/products",
     },
 
-    {
-      name: "Orders",
-      path: "/orders",
-    },
+    ...(token
+      ? [
+          {
+            name: "My Orders",
+            path: "/orders",
+          },
+        ]
+      : []),
 
     {
       name: "About",
@@ -79,224 +136,246 @@ export default function Header() {
         className="
           mx-auto
           max-w-7xl
-          px-4
+          px-3
+          sm:px-4
         "
       >
         {/* =================================================
-            HEADER CONTAINER
+            HEADER ROW
         ================================================= */}
 
-        <nav
+        <div
           className="
-            relative
             flex
-            items-center
-            justify-between
-            rounded-2xl
-            bg-primary
-            px-6
-            py-4
-            border-3
-            border-accent
-            shadow-[0_8px_0_0_var(--color-accent)]
-            transition-all
-            duration-300
+            items-stretch
+            gap-3
           "
         >
           {/* =================================================
-              LOGO
+              MAIN HEADER CONTAINER
           ================================================= */}
 
-          <Link
-            to="/"
+          <nav
             className="
+              relative
+              flex-1
+              min-w-0
               flex
               items-center
-              gap-3
-              cursor-pointer
+              justify-between
+              rounded-2xl
+              bg-primary
+              px-4
+              sm:px-6
+              py-4
+              border-3
+              border-accent
+              shadow-[0_8px_0_0_var(--color-accent)]
+              transition-all
+              duration-300
             "
           >
-            <div
+            {/* =================================================
+                LOGO
+            ================================================= */}
+
+            <Link
+              to="/"
               className="
                 flex
-                h-11
-                w-11
                 items-center
-                justify-center
-                rounded-xl
-                bg-primary
-                border-2
-                border-accent
-                shadow-[0_4px_0_0_var(--color-accent)]
-                active:translate-y-1
-                active:shadow-none
-                transition-all
-                overflow-hidden
-                p-1
+                gap-2
+                sm:gap-3
+                cursor-pointer
+                shrink-0
               "
             >
-              <img
-                src="/logo.png"
-                alt="NariCraft Logo"
-                className="
-                  h-full
-                  w-full
-                  object-contain
-                "
-              />
-            </div>
-
-            <span
-              className="
-                text-3xl
-                font-black
-                text-accent
-                tracking-wide
-                drop-shadow-[2px_2px_0_var(--color-secoundry)]
-              "
-            >
-              නාරී
-              <span
-                className="
-                  text-secoundry
-                  text-2xl
-                "
-              >
-                CRAFT
-              </span>
-            </span>
-          </Link>
-
-          {/* =================================================
-              DESKTOP NAVIGATION
-          ================================================= */}
-
-          <ul
-            className="
-              hidden
-              md:flex
-              items-center
-              gap-8
-              font-bold
-              text-accent
-            "
-          >
-            {navItems.map((item) => (
-              <li key={item.name}>
-                <NavLink
-                  to={item.path}
-                  className={({ isActive }) =>
-                    `relative py-1 transition-all duration-200 block ${
-                      isActive
-                        ? "text-secoundry border-b-2 border-secoundry font-black"
-                        : "hover:text-secoundry hover:-translate-y-0.5"
-                    }`
-                  }
-                >
-                  {item.name}
-                </NavLink>
-              </li>
-            ))}
-          </ul>
-
-          {/* =================================================
-              DESKTOP ACCOUNT AREA
-          ================================================= */}
-
-          <div
-            className="
-              hidden
-              md:flex
-              items-center
-              gap-4
-            "
-          >
-            {token ? (
               <div
                 className="
                   flex
+                  h-10
+                  w-10
+                  sm:h-11
+                  sm:w-11
                   items-center
-                  gap-3
+                  justify-center
+                  rounded-xl
+                  bg-primary
+                  border-2
+                  border-accent
+                  shadow-[0_4px_0_0_var(--color-accent)]
+                  active:translate-y-1
+                  active:shadow-none
+                  transition-all
+                  overflow-hidden
+                  p-1
                 "
               >
-                {/* USER NAME */}
+                <img
+                  src="/logo.png"
+                  alt="NariCraft Logo"
+                  className="
+                    h-full
+                    w-full
+                    object-contain
+                  "
+                />
+              </div>
 
+              <span
+                className="
+                  text-xl
+                  sm:text-2xl
+                  xl:text-3xl
+                  font-black
+                  text-accent
+                  tracking-wide
+                  whitespace-nowrap
+                  drop-shadow-[2px_2px_0_var(--color-secoundry)]
+                "
+              >
+                නාරී
                 <span
                   className="
-                    font-bold
-                    text-accent
-                    whitespace-nowrap
+                    text-secoundry
+                    text-lg
+                    sm:text-xl
+                    xl:text-2xl
                   "
                 >
-                  Hi, {firstName} 👋
+                  {" "}
+                  CRAFT
                 </span>
+              </span>
+            </Link>
 
-                {/* =================================================
-                    ADMIN ONLY BUTTON
-                ================================================= */}
+            {/* =================================================
+                DESKTOP NAVIGATION
+            ================================================= */}
 
-                {isAdmin && (
-                  <Link to="/admin">
-                    <button
-                      type="button"
-                      className="
-                        rounded-xl
-                        bg-[#6b1d2f]
-                        px-4
-                        py-2.5
-                        font-bold
-                        text-[#f3d975]
-                        border-2
-                        border-[#d4af37]
-                        shadow-[0_4px_0_0_#d4af37]
-                        hover:-translate-y-0.5
-                        hover:shadow-[0_6px_0_0_#d4af37]
-                        active:translate-y-1
-                        active:shadow-none
+            <ul
+              className="
+                hidden
+                xl:flex
+                items-center
+                gap-7
+                font-bold
+                text-accent
+              "
+            >
+              {navItems.map((item) => (
+                <li key={item.name}>
+                  <NavLink
+                    to={item.path}
+                    className={({ isActive }) =>
+                      `
+                        relative
+                        py-1
                         transition-all
-                        duration-150
+                        duration-200
+                        block
                         whitespace-nowrap
-                      "
-                    >
-                      Admin Panel
-                    </button>
-                  </Link>
-                )}
 
-                {/* LOG OUT */}
+                        ${
+                          isActive
+                            ? "text-secoundry border-b-2 border-secoundry font-black"
+                            : "hover:text-secoundry hover:-translate-y-0.5"
+                        }
+                      `
+                    }
+                  >
+                    {item.name}
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
 
-                <button
-                  type="button"
-                  onClick={handleLogout}
+            {/* =================================================
+                DESKTOP ACCOUNT AREA
+            ================================================= */}
+
+            <div
+              className="
+                hidden
+                xl:flex
+                items-center
+                gap-3
+                shrink-0
+              "
+            >
+              {token ? (
+                <div
                   className="
-                    rounded-xl
-                    bg-primary
-                    px-5
-                    py-2.5
-                    font-bold
-                    text-accent
-                    border-2
-                    border-accent
-                    shadow-[0_4px_0_0_var(--color-accent)]
-                    hover:-translate-y-0.5
-                    hover:shadow-[0_6px_0_0_var(--color-accent)]
-                    active:translate-y-1
-                    active:shadow-none
-                    transition-all
-                    duration-150
-                    whitespace-nowrap
+                    flex
+                    items-center
+                    gap-3
                   "
                 >
-                  Log Out
-                </button>
-              </div>
-            ) : (
-              <>
-                {/* LOGIN */}
+                  {/* =================================================
+                      USER NAME / PROFILE LINK
+                  ================================================= */}
 
-                <Link to="/login">
+                  <Link
+                    to="/profile"
+                    className="
+                      font-bold
+                      text-accent
+                      whitespace-nowrap
+
+                      px-3
+                      py-2
+
+                      rounded-xl
+
+                      hover:bg-[#f3e8dc]
+                      hover:text-[#6b1d2f]
+
+                      transition-all
+                      duration-200
+                    "
+                  >
+                    Hi, {firstName} 👋
+                  </Link>
+
+                  {/* =================================================
+                      ADMIN ONLY
+                  ================================================= */}
+
+                  {isAdmin && (
+                    <Link to="/admin">
+                      <button
+                        type="button"
+                        className="
+                          rounded-xl
+                          bg-[#6b1d2f]
+                          px-4
+                          py-2.5
+                          font-bold
+                          text-[#f3d975]
+                          border-2
+                          border-[#d4af37]
+                          shadow-[0_4px_0_0_#d4af37]
+                          hover:-translate-y-0.5
+                          hover:shadow-[0_6px_0_0_#d4af37]
+                          active:translate-y-1
+                          active:shadow-none
+                          transition-all
+                          duration-150
+                          whitespace-nowrap
+                        "
+                      >
+                        Admin Panel
+                      </button>
+                    </Link>
+                  )}
+
+                  {/* =================================================
+                      LOG OUT
+                  ================================================= */}
+
                   <button
                     type="button"
+                    onClick={handleLogout}
                     className="
                       rounded-xl
                       bg-primary
@@ -313,101 +392,177 @@ export default function Header() {
                       active:shadow-none
                       transition-all
                       duration-150
+                      whitespace-nowrap
                     "
                   >
-                    Log In
+                    Log Out
                   </button>
-                </Link>
+                </div>
+              ) : (
+                <>
+                  {/* =================================================
+                      LOGIN
+                  ================================================= */}
 
-                {/* SIGN UP */}
+                  <Link to="/login">
+                    <button
+                      type="button"
+                      className="
+                        rounded-xl
+                        bg-primary
+                        px-5
+                        py-2.5
+                        font-bold
+                        text-accent
+                        border-2
+                        border-accent
+                        shadow-[0_4px_0_0_var(--color-accent)]
+                        hover:-translate-y-0.5
+                        hover:shadow-[0_6px_0_0_var(--color-accent)]
+                        active:translate-y-1
+                        active:shadow-none
+                        transition-all
+                        duration-150
+                      "
+                    >
+                      Log In
+                    </button>
+                  </Link>
 
-                <Link to="/register">
-                  <button
-                    type="button"
-                    className="
-                      rounded-xl
-                      bg-[#E4D19E]
-                      px-5
-                      py-2.5
-                      font-bold
-                      text-secoundry
-                      border-2
-                      border-accent
-                      shadow-[0_4px_0_0_var(--color-accent)]
-                      hover:-translate-y-0.5
-                      hover:shadow-[0_6px_0_0_var(--color-accent)]
-                      active:translate-y-1
-                      active:shadow-none
-                      transition-all
-                      duration-150
-                    "
-                  >
-                    Sign Up
-                  </button>
-                </Link>
-              </>
-            )}
-          </div>
+                  {/* =================================================
+                      SIGN UP
+                  ================================================= */}
+
+                  <Link to="/register">
+                    <button
+                      type="button"
+                      className="
+                        rounded-xl
+                        bg-[#E4D19E]
+                        px-5
+                        py-2.5
+                        font-bold
+                        text-secoundry
+                        border-2
+                        border-accent
+                        shadow-[0_4px_0_0_var(--color-accent)]
+                        hover:-translate-y-0.5
+                        hover:shadow-[0_6px_0_0_var(--color-accent)]
+                        active:translate-y-1
+                        active:shadow-none
+                        transition-all
+                        duration-150
+                      "
+                    >
+                      Sign Up
+                    </button>
+                  </Link>
+                </>
+              )}
+            </div>
+
+            {/* =================================================
+                MOBILE / TABLET HAMBURGER
+            ================================================= */}
+
+            <button
+              type="button"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="
+                xl:hidden
+                flex
+                flex-col
+                gap-1.5
+                p-2.5
+                rounded-xl
+                bg-primary
+                border-2
+                border-accent
+                shadow-[0_3px_0_0_var(--color-accent)]
+                active:translate-y-0.5
+                active:shadow-none
+                shrink-0
+              "
+            >
+              <span
+                className="
+                  w-6
+                  h-0.5
+                  bg-accent
+                  rounded-full
+                "
+              />
+
+              <span
+                className="
+                  w-6
+                  h-0.5
+                  bg-accent
+                  rounded-full
+                "
+              />
+
+              <span
+                className="
+                  w-6
+                  h-0.5
+                  bg-accent
+                  rounded-full
+                "
+              />
+            </button>
+          </nav>
 
           {/* =================================================
-              MOBILE HAMBURGER
+              CART BUTTON
+              LOGIN USER ONLY
           ================================================= */}
 
-          <button
-            type="button"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="
-              md:hidden
-              flex
-              flex-col
-              gap-1.5
-              p-2.5
-              rounded-xl
-              bg-primary
-              border-2
-              border-accent
-              shadow-[0_3px_0_0_var(--color-accent)]
-              active:translate-y-0.5
-              active:shadow-none
-            "
-          >
-            <span
-              className="
-                w-6
-                h-0.5
-                bg-accent
-                rounded-full
-              "
-            />
+          {token && (
+            <NavLink
+              to="/cart"
+              title="Shopping Cart"
+              className={({ isActive }) =>
+                `
+                  shrink-0
+                  mt-4
+                  h-[50px]
+                  w-[50px]
+                  rounded-xl
+                  border-2
+                  flex
+                  items-center
+                  justify-center
+                  font-bold
+                  shadow-[0_4px_0_0_var(--color-accent)]
+                  hover:-translate-y-0.5
+                  hover:shadow-[0_6px_0_0_var(--color-accent)]
+                  active:translate-y-1
+                  active:shadow-none
+                  transition-all
+                  duration-200
 
-            <span
-              className="
-                w-6
-                h-0.5
-                bg-accent
-                rounded-full
-              "
-            />
-
-            <span
-              className="
-                w-6
-                h-0.5
-                bg-accent
-                rounded-full
-              "
-            />
-          </button>
-        </nav>
+                  ${
+                    isActive
+                      ? "bg-[#f3e8dc] border-[#d4af37] text-[#6b1d2f]"
+                      : "bg-primary border-accent text-accent hover:bg-[#f3e8dc]"
+                  }
+                `
+              }
+            >
+              <FaShoppingCart className="text-base" />
+            </NavLink>
+          )}
+        </div>
 
         {/* =================================================
-            MOBILE MENU
+            MOBILE / TABLET MENU
         ================================================= */}
 
         {isMenuOpen && (
           <div
             className="
-              md:hidden
+              xl:hidden
               mt-3
               rounded-2xl
               bg-primary
@@ -422,7 +577,9 @@ export default function Header() {
               text-accent
             "
           >
-            {/* MOBILE NAV LINKS */}
+            {/* =================================================
+                MOBILE NAV LINKS
+            ================================================= */}
 
             {navItems.map((item) => (
               <NavLink
@@ -430,11 +587,18 @@ export default function Header() {
                 to={item.path}
                 onClick={() => setIsMenuOpen(false)}
                 className={({ isActive }) =>
-                  `py-1 transition-all ${
-                    isActive
-                      ? "text-secoundry font-black"
-                      : "hover:text-secoundry"
-                  }`
+                  `
+                    py-2
+                    px-3
+                    rounded-xl
+                    transition-all
+
+                    ${
+                      isActive
+                        ? "bg-[#6b1d2f] text-[#f3d975] font-black"
+                        : "hover:bg-[#6b1d2f]/10 hover:text-secoundry"
+                    }
+                  `
                 }
               >
                 {item.name}
@@ -457,7 +621,37 @@ export default function Header() {
               {token ? (
                 <>
                   {/* =================================================
-                      MOBILE ADMIN ONLY BUTTON
+                      MOBILE USER / PROFILE LINK
+                  ================================================= */}
+
+                  <Link
+                    to="/profile"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="
+                      px-3
+                      py-3
+                      rounded-xl
+
+                      bg-[#f7eee4]
+
+                      text-[#6b1d2f]
+                      text-sm
+                      font-bold
+
+                      border
+                      border-[#e1d2c0]
+
+                      hover:border-[#d4af37]
+                      hover:bg-[#f3e8dc]
+
+                      transition-all
+                    "
+                  >
+                    Hi, {firstName} 👋
+                  </Link>
+
+                  {/* =================================================
+                      ADMIN ONLY
                   ================================================= */}
 
                   {isAdmin && (
@@ -468,7 +662,7 @@ export default function Header() {
                           w-full
                           rounded-xl
                           bg-[#6b1d2f]
-                          py-2.5
+                          py-3
                           text-[#f3d975]
                           font-bold
                           border-2
@@ -484,7 +678,9 @@ export default function Header() {
                     </Link>
                   )}
 
-                  {/* MOBILE LOGOUT */}
+                  {/* =================================================
+                      LOGOUT
+                  ================================================= */}
 
                   <button
                     type="button"
@@ -493,7 +689,7 @@ export default function Header() {
                       w-full
                       rounded-xl
                       bg-primary
-                      py-2.5
+                      py-3
                       text-accent
                       border-2
                       border-accent
@@ -503,12 +699,13 @@ export default function Header() {
                     "
                   >
                     Log Out
-                    {firstName && ` (${firstName})`}
                   </button>
                 </>
               ) : (
                 <>
-                  {/* MOBILE LOGIN */}
+                  {/* =================================================
+                      LOGIN
+                  ================================================= */}
 
                   <Link to="/login" onClick={() => setIsMenuOpen(false)}>
                     <button
@@ -517,7 +714,7 @@ export default function Header() {
                         w-full
                         rounded-xl
                         bg-primary
-                        py-2.5
+                        py-3
                         text-accent
                         border-2
                         border-accent
@@ -530,7 +727,9 @@ export default function Header() {
                     </button>
                   </Link>
 
-                  {/* MOBILE SIGN UP */}
+                  {/* =================================================
+                      SIGN UP
+                  ================================================= */}
 
                   <Link to="/register" onClick={() => setIsMenuOpen(false)}>
                     <button
@@ -539,7 +738,7 @@ export default function Header() {
                         w-full
                         rounded-xl
                         bg-[#E4D19E]
-                        py-2.5
+                        py-3
                         text-secoundry
                         border-2
                         border-accent

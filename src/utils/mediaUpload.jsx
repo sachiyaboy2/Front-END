@@ -1,15 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 
-const anonKey =
-  "sb_publishable_V4oZb3VfSfBAOU3Htyv5rg_Y6vMMzAJ";
+const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-const supabaseUrl =
-  "https://gbxtxssjwxxeocoghbkt.supabase.co";
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 
-const supabase = createClient(
-  supabaseUrl,
-  anonKey
-);
+const supabase = createClient(supabaseUrl, anonKey);
 
 export default async function MediaUploader(file) {
   if (!file) {
@@ -20,10 +15,7 @@ export default async function MediaUploader(file) {
   const timestamp = Date.now();
 
   // File name එක clean කරගන්න
-  const safeFileName = file.name.replace(
-    /[^a-zA-Z0-9._-]/g,
-    "_"
-  );
+  const safeFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
 
   const fileName = `${timestamp}-${safeFileName}`;
 
