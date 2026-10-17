@@ -11,6 +11,11 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { Loader } from "../components/loader";
+import AdminCustomOrdersPage from "./Admin/AdminCustomOrdersPage";
+import AdminUsersPage from "./Admin/AdminUsersPage";
+import { GrManual } from "react-icons/gr";
+import { SiEbox } from "react-icons/si";
+import AdminDashboard from "./Admin/AdminDashboard";
 
 export default function AdminPage() {
   const navigate = useNavigate();
@@ -215,7 +220,27 @@ export default function AdminPage() {
               "
             >
               <BsBox2HeartFill />
-              Orders
+              Web Orders
+            </Link>
+
+            {/* CUSTOM ORDERS */}
+
+            <Link
+              to="/admin/cutomer-orders"
+              className="
+                flex
+                items-center
+                gap-2
+                text-sm
+                md:text-base
+                hover:text-secoundry
+                hover:font-bold
+                whitespace-nowrap
+                transition-all
+              "
+            >
+              <SiEbox />
+              Custom Orders
             </Link>
 
             {/* PRODUCTS */}
@@ -407,19 +432,13 @@ export default function AdminPage() {
 
               {/* USERS */}
 
+              <Route path="/users" element={<AdminUsersPage />} />
+
+              {/* CUTOMER ORDERS */}
+
               <Route
-                path="/users"
-                element={
-                  <div
-                    className="
-                    p-4
-                    text-accent
-                    font-bold
-                  "
-                  >
-                    Users
-                  </div>
-                }
+                path="/cutomer-orders"
+                element={<AdminCustomOrdersPage />}
               />
 
               {/* ADD PRODUCT */}
@@ -432,6 +451,7 @@ export default function AdminPage() {
                 path="update-product/:productId"
                 element={<AdminUpdateProduct />}
               />
+              <Route index element={<AdminDashboard />} />
             </Routes>
           ) : (
             <Loader />

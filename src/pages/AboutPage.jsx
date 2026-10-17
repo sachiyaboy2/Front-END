@@ -1,8 +1,8 @@
-import { FaHeart, FaCut, FaStar, FaUsers } from "react-icons/fa";
+import { FaHeart, FaCut, FaStar, FaUsers, FaWhatsapp } from "react-icons/fa";
 
 export default function AboutPage() {
   return (
-    <div className="w-full bg-[#f6ede2]">
+    <div className="w-full bg-[#f6ede2] relative">
       {/* =====================================================
           ABOUT HERO
       ===================================================== */}
@@ -321,6 +321,40 @@ export default function AboutPage() {
       </footer>
 
       {/* =====================================================
+          WHATSAPP FIXED FLOATING BUTTON
+      ===================================================== */}
+      <a
+        href="https://wa.me/94725521272"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="whatsapp-float group"
+        title="Contact us on WhatsApp"
+      >
+        {/* PULSE RINGS */}
+
+        <span className="whatsapp-pulse whatsapp-pulse-one" />
+        <span className="whatsapp-pulse whatsapp-pulse-two" />
+
+        {/* MAIN BUTTON */}
+
+        <span className="whatsapp-main">
+          <FaWhatsapp className="whatsapp-icon" />
+
+          {/* TEXT - DESKTOP */}
+
+          <span className="whatsapp-text">
+            <span className="whatsapp-small">Need Help?</span>
+
+            <span className="whatsapp-title">Chat with us</span>
+          </span>
+        </span>
+
+        {/* ONLINE DOT */}
+
+        <span className="whatsapp-online" />
+      </a>
+
+      {/* =====================================================
           SMALL CSS
       ===================================================== */}
 
@@ -358,6 +392,295 @@ export default function AboutPage() {
           margin-top: 10px;
           font-size: 14px;
         }
+
+        /* =====================================================
+   WHATSAPP FLOATING BUTTON
+===================================================== */
+
+.whatsapp-float {
+  position: fixed;
+
+  right: 24px;
+  bottom: 24px;
+
+  z-index: 999;
+
+  text-decoration: none;
+
+  display: flex;
+  align-items: center;
+
+  animation: whatsappFloat 3s ease-in-out infinite;
+}
+
+
+/* MAIN BUTTON */
+
+.whatsapp-main {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  min-height: 58px;
+
+  padding: 11px 18px 11px 14px;
+
+  border-radius: 999px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #25d366,
+      #18a94d
+    );
+
+  color: white;
+
+  border: 2px solid
+    rgba(255, 255, 255, 0.85);
+
+  box-shadow:
+    0 10px 30px
+      rgba(37, 211, 102, 0.35),
+    0 5px 12px
+      rgba(0, 0, 0, 0.12);
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+
+/* HOVER */
+
+.whatsapp-float:hover
+.whatsapp-main {
+  transform:
+    translateY(-5px)
+    scale(1.04);
+
+  box-shadow:
+    0 18px 40px
+      rgba(37, 211, 102, 0.48),
+    0 7px 18px
+      rgba(0, 0, 0, 0.14);
+}
+
+
+/* ICON */
+
+.whatsapp-icon {
+  position: relative;
+
+  z-index: 2;
+
+  font-size: 31px;
+
+  flex-shrink: 0;
+
+  transition:
+    transform 0.35s ease;
+}
+
+
+.whatsapp-float:hover
+.whatsapp-icon {
+  transform:
+    rotate(-12deg)
+    scale(1.12);
+}
+
+
+/* TEXT */
+
+.whatsapp-text {
+  display: flex;
+
+  flex-direction: column;
+
+  line-height: 1.1;
+}
+
+
+.whatsapp-small {
+  font-size: 9px;
+
+  font-weight: 600;
+
+  opacity: 0.85;
+
+  text-transform: uppercase;
+
+  letter-spacing: 1px;
+}
+
+
+.whatsapp-title {
+  margin-top: 3px;
+
+  font-size: 13px;
+
+  font-weight: 900;
+
+  white-space: nowrap;
+}
+
+
+/* ONLINE DOT */
+
+.whatsapp-online {
+  position: absolute;
+
+  top: 3px;
+  right: 5px;
+
+  width: 12px;
+  height: 12px;
+
+  border-radius: 50%;
+
+  background: #ffffff;
+
+  border: 3px solid #25d366;
+
+  z-index: 5;
+
+  animation:
+    onlineBlink 1.5s ease-in-out infinite;
+}
+
+
+/* PULSE */
+
+.whatsapp-pulse {
+  position: absolute;
+
+  left: 7px;
+
+  width: 48px;
+  height: 48px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(37, 211, 102, 0.3);
+
+  pointer-events: none;
+
+  animation:
+    whatsappPulse 2.2s
+    ease-out infinite;
+}
+
+
+.whatsapp-pulse-two {
+  animation-delay: 1.1s;
+}
+
+
+/* FLOAT ANIMATION */
+
+@keyframes whatsappFloat {
+
+  0%,
+  100% {
+    transform:
+      translateY(0);
+  }
+
+  50% {
+    transform:
+      translateY(-6px);
+  }
+
+}
+
+
+/* PULSE ANIMATION */
+
+@keyframes whatsappPulse {
+
+  0% {
+    transform:
+      scale(0.8);
+
+    opacity: 0.8;
+  }
+
+  100% {
+    transform:
+      scale(2);
+
+    opacity: 0;
+  }
+
+}
+
+
+/* ONLINE DOT */
+
+@keyframes onlineBlink {
+
+  0%,
+  100% {
+    transform:
+      scale(1);
+  }
+
+  50% {
+    transform:
+      scale(0.75);
+  }
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 640px) {
+
+  .whatsapp-float {
+    right: 18px;
+    bottom: 18px;
+  }
+
+
+  .whatsapp-main {
+    width: 58px;
+    height: 58px;
+
+    min-height: 58px;
+
+    padding: 0;
+
+    justify-content: center;
+
+    border-radius: 50%;
+  }
+
+
+  .whatsapp-text {
+    display: none;
+  }
+
+
+  .whatsapp-icon {
+    font-size: 31px;
+  }
+
+
+  .whatsapp-pulse {
+    left: 5px;
+
+    width: 48px;
+    height: 48px;
+  }
+
+}
 
       `}</style>
     </div>

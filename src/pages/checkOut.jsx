@@ -10,11 +10,14 @@ import {
   FaMapMarkerAlt,
   FaPhoneAlt,
   FaUser,
+  FaCreditCard,
+  FaCheckCircle,
+  FaLock,
 } from "react-icons/fa";
 
 import axios from "axios";
 
-import { clearCart, loadCart } from "../utils/cart";
+import { loadCart } from "../utils/cart";
 import { Loader } from "../components/loader";
 
 export default function CheckOutPage() {
@@ -29,9 +32,7 @@ export default function CheckOutPage() {
   const isBuyNow =
     location.state?.buyNow === true && location.state?.product != null;
 
-  const [cart, setCart] = useState(
-    isBuyNow ? [location.state.product] : [],
-  );
+  const [cart, setCart] = useState(isBuyNow ? [location.state.product] : []);
 
   const [isCartLoading, setIsCartLoading] = useState(!isBuyNow);
 
@@ -61,7 +62,7 @@ export default function CheckOutPage() {
 
         setCart(items);
       } catch (error) {
-        console.log("Load Checkout Cart Error:", error);
+        console.error("Load Checkout Cart Error:", error.message);
 
         if (error.response?.status === 401 || error.code === "LOGIN_REQUIRED") {
           toast.error("Please login again");
@@ -96,6 +97,12 @@ export default function CheckOutPage() {
 
   const [isOrdering, setIsOrdering] = useState(false);
 
+  const [paymentPlan, setPaymentPlan] = useState("Full Payment");
+
+  // If the order is created successfully but payment initiation fails,
+  // reuse the same order on retry instead of creating a duplicate order.
+  const [createdOrderId, setCreatedOrderId] = useState(null);
+
   // =====================================================
   // TOTAL PRICE
   // Frontend display only.
@@ -103,16 +110,62 @@ export default function CheckOutPage() {
   // =====================================================
 
   const totalPrice = cart.reduce((total, product) => {
-    return total + product.price * product.quantity;
+    return total + Number(product.price || 0) * Number(product.quantity || 0);
   }, 0);
 
+  // =====================================================
+  // PAYMENT DISPLAY VALUES
+  // Frontend display only.
+  // Backend calculates the real payment amount again.
+  // =====================================================
+
+  const amountToPayNow =
+    paymentPlan === "Half Payment"
+      ? Math.round((totalPrice / 2) * 100) / 100
+      : totalPrice;
+
+  const balanceOnDelivery =
+    paymentPlan === "Half Payment"
+      ? Math.round((totalPrice - amountToPayNow) * 100) / 100
+      : 0;
   // =====================================================
   // TOTAL QUANTITY
   // =====================================================
 
   const totalQuantity = cart.reduce((total, product) => {
-    return total + product.quantity;
+    return total + Number(product.quantity || 0);
   }, 0);
+
+  // =====================================================
+  // REDIRECT TO PAYHERE
+  // =====================================================
+
+  function submitToPayHere(actionUrl, paymentData) {
+    const form = document.createElement("form");
+
+    form.method = "POST";
+    form.action = actionUrl;
+
+    Object.entries(paymentData).forEach(([name, value]) => {
+      if (value === undefined || value === null) {
+        return;
+      }
+
+      const input = document.createElement("input");
+
+      input.type = "hidden";
+
+      input.name = name;
+
+      input.value = String(value);
+
+      form.appendChild(input);
+    });
+
+    document.body.appendChild(form);
+
+    form.submit();
+  }
 
   // =====================================================
   // PURCHASE CART
@@ -134,7 +187,7 @@ export default function CheckOutPage() {
     }
 
     // ============================================
-    // VALIDATE CUSTOMER DETAILS
+    // CUSTOMER DETAILS
     // ============================================
 
     if (
@@ -150,7 +203,7 @@ export default function CheckOutPage() {
     }
 
     // ============================================
-    // CHECK CART
+    // CART
     // ============================================
 
     if (cart.length === 0) {
@@ -160,7 +213,17 @@ export default function CheckOutPage() {
     }
 
     // ============================================
-    // CREATE PRODUCTS ARRAY
+    // PAYMENT PLAN
+    // ============================================
+
+    if (paymentPlan !== "Full Payment" && paymentPlan !== "Half Payment") {
+      toast.error("Please select a payment plan");
+
+      return;
+    }
+
+    // ============================================
+    // PRODUCTS
     // ============================================
 
     const products = [];
@@ -169,12 +232,16 @@ export default function CheckOutPage() {
       products.push({
         productId: cart[i].productId,
 
-        quantity: cart[i].quantity,
+        quantity: Number(cart[i].quantity),
       });
     }
 
     // ============================================
     // ORDER DATA
+    //
+    // Notice:
+    // We do NOT send totalPrice.
+    // Backend calculates real total.
     // ============================================
 
     const orderData = {
@@ -193,17 +260,52 @@ export default function CheckOutPage() {
       products: products,
     };
 
-    // ============================================
-    // SEND ORDER TO BACKEND
-    // ============================================
-
     try {
       setIsOrdering(true);
 
-      const response = await axios.post(
-        import.meta.env.VITE_API_URL + "/api/orders",
+      // ==========================================
+      // STEP 1
+      // CREATE NARICRAFT ORDER
+      // ==========================================
 
-        orderData,
+      let orderIdForPayment = createdOrderId;
+
+      if (!orderIdForPayment) {
+        const orderResponse = await axios.post(
+          import.meta.env.VITE_API_URL + "/api/orders",
+
+          orderData,
+
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        const createdOrder = orderResponse.data.order;
+
+        if (!createdOrder?.orderId) {
+          throw new Error("Order was created without an order ID");
+        }
+
+        orderIdForPayment = createdOrder.orderId;
+        setCreatedOrderId(orderIdForPayment);
+      }
+
+      // ==========================================
+      // STEP 2
+      // CREATE PAYHERE PAYMENT REQUEST
+      // ==========================================
+
+      const paymentResponse = await axios.post(
+        import.meta.env.VITE_API_URL + "/api/payments/product/initiate",
+
+        {
+          orderId: orderIdForPayment,
+
+          paymentPlan: paymentPlan,
+        },
 
         {
           headers: {
@@ -212,44 +314,50 @@ export default function CheckOutPage() {
         },
       );
 
-      // ============================================
-      // SUCCESS
-      // ============================================
+      const { actionUrl, paymentData, paymentReference } = paymentResponse.data;
 
-      toast.success(
-        `Order placed successfully! ${response.data.order.orderId}`,
+      if (!actionUrl || !paymentData || !paymentReference) {
+        throw new Error("Invalid payment gateway response");
+      }
+
+      // ==========================================
+      // TEMPORARY PAYMENT CONTEXT
+      //
+      // sessionStorage instead of localStorage:
+      // less persistent / better privacy.
+      //
+      // No personal customer data is saved here.
+      // ==========================================
+
+      sessionStorage.setItem(
+        "naricraftPendingPayment",
+
+        JSON.stringify({
+          paymentReference: paymentReference,
+
+          orderId: orderIdForPayment,
+
+          clearCart: !isBuyNow,
+        }),
       );
 
-      // ============================================
-      // CLEAR CART ONLY IF NORMAL CART CHECKOUT
+      toast.success("Redirecting to secure payment...");
+
+      // ==========================================
+      // IMPORTANT
       //
-      // Buy Now එකෙන් ආවා නම් old cart එක delete
-      // කරන්න එපා.
-      // ============================================
+      // Do NOT clear cart here.
+      // Payment is not verified yet.
+      // ==========================================
 
-      if (!isBuyNow) {
-        try {
-          await clearCart();
-        } catch (clearError) {
-          // Order එක already create වෙලා තියෙන නිසා cart clear fail වුණත්
-          // placed order එක fail කියලා userට පෙන්වන්නේ නැහැ.
-          console.log("Clear Cart Error:", clearError);
-        }
-      }
-
-      // ============================================
-      // AFTER SUCCESS
-      // ============================================
-
-      navigate("/orders");
+      submitToPayHere(actionUrl, paymentData);
     } catch (error) {
-      console.log(error);
+      console.error("Checkout Payment Error:", error.message);
 
-      if (error.response?.data?.message) {
-        toast.error(error.response.data.message);
-      } else {
-        toast.error("Something went wrong. Please try again.");
-      }
+      toast.error(
+        error.response?.data?.message ||
+          "Unable to start payment. Please try again.",
+      );
     } finally {
       setIsOrdering(false);
     }
@@ -1055,6 +1163,334 @@ export default function CheckOutPage() {
               </div>
 
               {/* =================================================
+                     PAYMENT PLAN
+              ================================================= */}
+
+              <div
+                className="
+                    w-full
+                    h-[1px]
+                    bg-[#eadfd2]
+                    my-6
+                "
+              />
+
+              <div>
+                <div
+                  className="
+                    flex
+                    items-center
+                    gap-2
+                    mb-4
+                  "
+                >
+                  <FaCreditCard
+                    className="
+        text-[#b88f25]
+      "
+                  />
+
+                  <h3
+                    className="
+        text-sm
+        font-black
+        text-[#4a1624]
+      "
+                  >
+                    Choose Payment Plan
+                  </h3>
+                </div>
+
+                {/* FULL PAYMENT */}
+
+                <button
+                  type="button"
+                  onClick={() => setPaymentPlan("Full Payment")}
+                  className={`
+      w-full
+      text-left
+      rounded-2xl
+      border-2
+      p-4
+      transition-all
+
+      ${
+        paymentPlan === "Full Payment"
+          ? "border-[#d4af37] bg-[#fff9e8] shadow-md"
+          : "border-[#eadfd2] bg-white hover:border-[#d4af37]"
+      }
+    `}
+                >
+                  <div
+                    className="
+        flex
+        items-start
+        justify-between
+        gap-4
+      "
+                  >
+                    <div
+                      className="
+          flex
+          gap-3
+        "
+                    >
+                      <div
+                        className={`
+            w-6
+            h-6
+            rounded-full
+            border-2
+            flex
+            items-center
+            justify-center
+            shrink-0
+
+            ${
+              paymentPlan === "Full Payment"
+                ? "border-[#6b1d2f] bg-[#6b1d2f]"
+                : "border-[#cbbbab]"
+            }
+          `}
+                      >
+                        {paymentPlan === "Full Payment" && (
+                          <FaCheckCircle
+                            className="
+                text-[#f3d975]
+                text-xs
+              "
+                          />
+                        )}
+                      </div>
+
+                      <div>
+                        <p
+                          className="
+              font-black
+              text-[#4a1624]
+            "
+                        >
+                          Full Payment
+                        </p>
+
+                        <p
+                          className="
+              text-xs
+              text-[#8b7567]
+              mt-1
+            "
+                        >
+                          Pay the full order amount securely now.
+                        </p>
+                      </div>
+                    </div>
+
+                    <p
+                      className="
+          font-black
+          text-[#6b1d2f]
+          whitespace-nowrap
+        "
+                    >
+                      LKR {totalPrice.toLocaleString()}
+                    </p>
+                  </div>
+                </button>
+
+                {/* HALF PAYMENT */}
+
+                <button
+                  type="button"
+                  onClick={() => setPaymentPlan("Half Payment")}
+                  className={`
+      w-full
+      text-left
+      rounded-2xl
+      border-2
+      p-4
+      mt-3
+      transition-all
+
+      ${
+        paymentPlan === "Half Payment"
+          ? "border-[#d4af37] bg-[#fff9e8] shadow-md"
+          : "border-[#eadfd2] bg-white hover:border-[#d4af37]"
+      }
+    `}
+                >
+                  <div
+                    className="
+        flex
+        items-start
+        justify-between
+        gap-4
+      "
+                  >
+                    <div
+                      className="
+          flex
+          gap-3
+        "
+                    >
+                      <div
+                        className={`
+            w-6
+            h-6
+            rounded-full
+            border-2
+            flex
+            items-center
+            justify-center
+            shrink-0
+
+            ${
+              paymentPlan === "Half Payment"
+                ? "border-[#6b1d2f] bg-[#6b1d2f]"
+                : "border-[#cbbbab]"
+            }
+          `}
+                      >
+                        {paymentPlan === "Half Payment" && (
+                          <FaCheckCircle
+                            className="
+                text-[#f3d975]
+                text-xs
+              "
+                          />
+                        )}
+                      </div>
+
+                      <div>
+                        <p
+                          className="
+              font-black
+              text-[#4a1624]
+            "
+                        >
+                          50% Advance
+                        </p>
+
+                        <p
+                          className="
+              text-xs
+              text-[#8b7567]
+              mt-1
+            "
+                        >
+                          Pay 50% now and the remaining 50% on delivery.
+                        </p>
+                      </div>
+                    </div>
+
+                    <p
+                      className="
+          font-black
+          text-[#6b1d2f]
+          whitespace-nowrap
+        "
+                    >
+                      LKR {amountToPayNow.toLocaleString()}
+                    </p>
+                  </div>
+                </button>
+
+                {/* PAYMENT BREAKDOWN */}
+
+                <div
+                  className="
+      mt-4
+      rounded-2xl
+      bg-[#f8f1e8]
+      border
+      border-[#ead8c7]
+      p-4
+    "
+                >
+                  <div
+                    className="
+        flex
+        justify-between
+        text-sm
+      "
+                  >
+                    <span
+                      className="
+          text-[#8b7567]
+        "
+                    >
+                      Pay now
+                    </span>
+
+                    <span
+                      className="
+          font-black
+          text-[#6b1d2f]
+        "
+                    >
+                      LKR {amountToPayNow.toLocaleString()}
+                    </span>
+                  </div>
+
+                  <div
+                    className="
+        flex
+        justify-between
+        text-sm
+        mt-3
+      "
+                  >
+                    <span
+                      className="
+          text-[#8b7567]
+        "
+                    >
+                      Balance on delivery
+                    </span>
+
+                    <span
+                      className="
+          font-black
+          text-[#4a1624]
+        "
+                    >
+                      LKR {balanceOnDelivery.toLocaleString()}
+                    </span>
+                  </div>
+
+                  <div
+                    className="
+        flex
+        items-start
+        gap-2
+        mt-4
+        pt-4
+        border-t
+        border-[#dfcfbf]
+      "
+                  >
+                    <FaLock
+                      className="
+          text-[#b88f25]
+          mt-0.5
+          shrink-0
+        "
+                    />
+
+                    <p
+                      className="
+          text-[11px]
+          leading-5
+          text-[#8b7567]
+        "
+                    >
+                      Payment is processed securely by PayHere. NariCraft does
+                      not store your card number or CVV.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* =================================================
                   PLACE ORDER
               ================================================= */}
 
@@ -1081,7 +1517,9 @@ export default function CheckOutPage() {
                   disabled:translate-y-0
                 "
               >
-                {isOrdering ? "Placing Order..." : "Place Order"}
+                {isOrdering
+                  ? "Preparing Secure Payment..."
+                  : `Pay LKR ${amountToPayNow.toLocaleString()} Securely`}
               </button>
 
               {/* BACK TO CART */}

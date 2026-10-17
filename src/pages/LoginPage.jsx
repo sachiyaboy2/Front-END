@@ -286,15 +286,14 @@ export default function LoginPage() {
                 Remember me
               </label>
 
-              <button
-                type="button"
-                className="forgot-link"
-                onClick={() =>
-                  alert("Password reset API එක මෙතැනට connect කරන්න.")
-                }
-              >
-                Forgot Password?
-              </button>
+              <div className="flex justify-end mt-2">
+                <Link
+                  to="/forgot-password"
+                  className="text-sm font-bold text-[#d99b21] hover:text-[#5b1a2b] transition-colors"
+                >
+                  Forgot Password?
+                </Link>
+              </div>
             </div>
 
             <button className="auth-submit" type="submit" disabled={loading}>

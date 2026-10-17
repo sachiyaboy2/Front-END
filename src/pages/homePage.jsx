@@ -15,6 +15,8 @@ import { TbRulerMeasure } from "react-icons/tb";
 import CartPage from "./cart";
 import CheckOutPage from "./checkOut";
 import UserData from "../components/userData";
+import CustomDesign from "./customDesign";
+import MyOrders from "./MyOrders";
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
@@ -69,10 +71,7 @@ export default function HomePage() {
           path="orders"
           element={
             <ProtectedRoute>
-              {" "}
-              <div className="p-10">
-                <h1 className="text-3xl font-bold text-[#5b1a2b]">Oder Page</h1>
-              </div>
+              <MyOrders />
             </ProtectedRoute>
           }
         />
@@ -107,6 +106,14 @@ export default function HomePage() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="custom-design"
+          element={
+            <ProtectedRoute>
+              <CustomDesign />
+            </ProtectedRoute>
+          }
+        />
 
         {/* 404 */}
 
@@ -122,6 +129,7 @@ export default function HomePage() {
             </ProtectedRoute>
           }
         />
+        
       </Routes>
     </div>
   );

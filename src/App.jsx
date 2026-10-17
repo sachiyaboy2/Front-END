@@ -10,6 +10,9 @@ import TestPage from "./pages/test.jsx";
 
 import { Toaster } from "react-hot-toast";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import ForgotPassword from "./pages/ForgotPassword.jsx";
+import PaymentSuccessPage from "./pages/PaymentSuccessPage.jsx";
+import PaymentCancelledPage from "./pages/PaymentCancelledPage.jsx";
 
 // =====================================================
 // LOGIN REQUIRED ROUTE
@@ -52,6 +55,15 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
 
             <Route path="/login" element={<LoginPage />} />
+
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+
+            <Route path="/payment/success" element={<PaymentSuccessPage />} />
+
+            <Route
+              path="/payment/cancelled"
+              element={<PaymentCancelledPage />}
+            />
 
             {/* =========================================
               ADMIN - LOGIN REQUIRED
