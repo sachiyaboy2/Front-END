@@ -2,6 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
+import { Search, X } from "lucide-react";
 
 import { Loader } from "../components/loader";
 import ProductCard from "../components/productCard";
@@ -10,6 +11,10 @@ export function ProductPage() {
   const [products, setProducts] = useState([]);
 
   const [isLoading, setIsLoading] = useState(true);
+
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
   // =====================================================
   // LOAD PRODUCTS
@@ -41,7 +46,98 @@ export function ProductPage() {
   // duplicate categories අයින් කරනවා
   // =====================================================
 
-  const categories = [...new Set(products.map((product) => product.category))];
+  // =====================================================
+  // CATEGORY DISPLAY ORDER
+  // Saree Jackets always at the top.
+  // Preschool Uniforms + Association T-Shirts always at the bottom.
+  // =====================================================
+
+  const categoryOrder = [
+    "Saree Jackets",
+    "Blouses",
+    "Frocks",
+    "Crop Tops",
+    "Premium",
+    "Traditional",
+    "Preschool Uniforms",
+    "Association T-Shirts",
+  ];
+
+  const availableCategories = [
+    ...new Set(products.map((product) => product.category).filter(Boolean)),
+  ];
+
+  const knownCategories = categoryOrder.filter((category) =>
+    availableCategories.includes(category),
+  );
+
+  const otherCategories = availableCategories.filter(
+    (category) => !categoryOrder.includes(category),
+  );
+
+  const categories = [
+    ...knownCategories.filter(
+      (category) =>
+        category !== "Preschool Uniforms" &&
+        category !== "Association T-Shirts",
+    ),
+    ...otherCategories,
+    ...knownCategories.filter(
+      (category) =>
+        category === "Preschool Uniforms" ||
+        category === "Association T-Shirts",
+    ),
+  ];
+
+  // =====================================================
+  // CATEGORY DISPLAY LABEL
+  // =====================================================
+
+  function getCategoryLabel(category) {
+    if (category === "Premium") {
+      return "Premium Collection";
+    }
+
+    return category;
+  }
+
+  // =====================================================
+  // SEARCH + CATEGORY FILTER
+  // =====================================================
+
+  const normalizedSearch = searchTerm.trim().toLowerCase();
+
+  const filteredProducts = products.filter((product) => {
+    const matchesCategory =
+      selectedCategory === "All" || product.category === selectedCategory;
+
+    const searchableText = [
+      product.productId,
+      product.name,
+      Array.isArray(product.altNames)
+        ? product.altNames.join(" ")
+        : product.altNames,
+      product.description,
+      product.category,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+    const matchesSearch =
+      normalizedSearch === "" || searchableText.includes(normalizedSearch);
+
+    return matchesCategory && matchesSearch;
+  });
+
+  const visibleCategories = categories.filter((category) =>
+    filteredProducts.some((product) => product.category === category),
+  );
+
+  function clearFilters() {
+    setSearchTerm("");
+    setSelectedCategory("All");
+  }
 
   return (
     <div
@@ -124,10 +220,211 @@ export function ProductPage() {
           "
         >
           {/* =================================================
+              SEARCH + CATEGORY FILTER
+          ================================================= */}
+
+          <div
+            className="
+              mb-12
+              rounded-[28px]
+              border
+              border-[#decfb9]
+              bg-white
+              p-4
+              sm:p-5
+              shadow-[0_14px_40px_rgba(72,35,25,0.08)]
+            "
+          >
+            {/* SEARCH BAR */}
+
+            <div
+              className="
+                flex
+                flex-col
+                lg:flex-row
+                lg:items-center
+                gap-4
+              "
+            >
+              <div
+                className="
+                  relative
+                  flex-1
+                "
+              >
+                <Search
+                  size={20}
+                  className="
+                    absolute
+                    left-4
+                    top-1/2
+                    -translate-y-1/2
+                    text-[#9b7f6c]
+                    pointer-events-none
+                  "
+                />
+
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search designs, product name or category..."
+                  className="
+                    w-full
+                    rounded-2xl
+                    border
+                    border-[#ddcfbd]
+                    bg-[#fcfaf7]
+                    py-3.5
+                    pl-12
+                    pr-12
+                    text-sm
+                    text-[#3e2b22]
+                    outline-none
+                    transition
+                    placeholder:text-[#b2a092]
+                    focus:border-[#6b1d2f]
+                    focus:bg-white
+                    focus:ring-4
+                    focus:ring-[#6b1d2f]/5
+                  "
+                />
+
+                {searchTerm !== "" && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchTerm("")}
+                    className="
+                      absolute
+                      right-3
+                      top-1/2
+                      -translate-y-1/2
+                      w-8
+                      h-8
+                      rounded-full
+                      bg-[#f1e8dc]
+                      text-[#6b1d2f]
+                      flex
+                      items-center
+                      justify-center
+                      hover:bg-[#6b1d2f]
+                      hover:text-white
+                      transition
+                    "
+                    aria-label="Clear search"
+                  >
+                    <X size={15} />
+                  </button>
+                )}
+              </div>
+
+              <div
+                className="
+                  shrink-0
+                  flex
+                  items-center
+                  justify-between
+                  lg:justify-end
+                  gap-3
+                "
+              >
+                <span
+                  className="
+                    text-xs
+                    font-bold
+                    text-[#8b7567]
+                    whitespace-nowrap
+                  "
+                >
+                  {filteredProducts.length}{" "}
+                  {filteredProducts.length === 1 ? "design" : "designs"} found
+                </span>
+
+                {(searchTerm !== "" || selectedCategory !== "All") && (
+                  <button
+                    type="button"
+                    onClick={clearFilters}
+                    className="
+                      text-xs
+                      font-black
+                      text-[#6b1d2f]
+                      hover:text-[#b88f25]
+                      transition
+                      whitespace-nowrap
+                    "
+                  >
+                    Clear all
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* CATEGORY FILTERS */}
+
+            <div
+              className="
+                mt-5
+                flex
+                gap-2.5
+                overflow-x-auto
+                pb-2
+                hide-scrollbar
+              "
+            >
+              <button
+                type="button"
+                onClick={() => setSelectedCategory("All")}
+                className={`
+                  shrink-0
+                  px-4
+                  py-2.5
+                  rounded-full
+                  border
+                  text-sm
+                  font-bold
+                  transition-all
+                  ${
+                    selectedCategory === "All"
+                      ? "bg-[#6b1d2f] border-[#6b1d2f] text-[#f3e5ab] shadow-md"
+                      : "bg-[#faf7f2] border-[#ddcfbd] text-[#6f594b] hover:border-[#6b1d2f] hover:text-[#6b1d2f]"
+                  }
+                `}
+              >
+                All Designs
+              </button>
+
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  type="button"
+                  onClick={() => setSelectedCategory(category)}
+                  className={`
+                    shrink-0
+                    px-4
+                    py-2.5
+                    rounded-full
+                    border
+                    text-sm
+                    font-bold
+                    transition-all
+                    ${
+                      selectedCategory === category
+                        ? "bg-[#6b1d2f] border-[#6b1d2f] text-[#f3e5ab] shadow-md"
+                        : "bg-[#faf7f2] border-[#ddcfbd] text-[#6f594b] hover:border-[#6b1d2f] hover:text-[#6b1d2f]"
+                    }
+                  `}
+                >
+                  {getCategoryLabel(category)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* =================================================
               CATEGORY SECTIONS
           ================================================= */}
 
-          {categories.map((category) => (
+          {visibleCategories.map((category) => (
             <div key={category} className="mb-14">
               {/* ================= CATEGORY TITLE ================= */}
 
@@ -156,7 +453,7 @@ export function ProductPage() {
                       text-[#5b1a2b]
                     "
                   >
-                    {category}
+                    {getCategoryLabel(category)}
                   </h2>
 
                   <p
@@ -166,7 +463,7 @@ export function ProductPage() {
                       mt-1
                     "
                   >
-                    Explore our {category} collection
+                    Explore our {getCategoryLabel(category)} collection
                   </p>
                 </div>
               </div>
@@ -198,7 +495,7 @@ export function ProductPage() {
     xl:grid-cols-4
   "
               >
-                {products
+                {filteredProducts
                   .filter((product) => product.category === category)
                   .map((product) => (
                     <div
@@ -268,6 +565,92 @@ export function ProductPage() {
                 >
                   New products will appear here.
                 </p>
+              </div>
+            </div>
+          )}
+
+          {products.length > 0 && filteredProducts.length === 0 && (
+            <div
+              className="
+                min-h-[260px]
+                flex
+                items-center
+                justify-center
+                mb-12
+              "
+            >
+              <div
+                className="
+                  w-full
+                  max-w-xl
+                  text-center
+                  bg-white
+                  border
+                  border-[#decfb9]
+                  rounded-3xl
+                  px-6
+                  sm:px-10
+                  py-10
+                  shadow-sm
+                "
+              >
+                <div
+                  className="
+                    w-14
+                    h-14
+                    mx-auto
+                    rounded-2xl
+                    bg-[#6b1d2f]/10
+                    text-[#6b1d2f]
+                    flex
+                    items-center
+                    justify-center
+                  "
+                >
+                  <Search size={25} />
+                </div>
+
+                <h2
+                  className="
+                    mt-5
+                    text-xl
+                    font-black
+                    text-[#5b1a2b]
+                  "
+                >
+                  No matching designs found
+                </h2>
+
+                <p
+                  className="
+                    text-[#8b7567]
+                    text-sm
+                    mt-2
+                    leading-6
+                  "
+                >
+                  වෙනත් product name එකක් search කරන්න හෝ category filter එක
+                  වෙනස් කර බලන්න.
+                </p>
+
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  className="
+                    mt-6
+                    px-6
+                    py-3
+                    rounded-xl
+                    bg-[#6b1d2f]
+                    text-[#f3e5ab]
+                    font-bold
+                    text-sm
+                    hover:bg-[#521624]
+                    transition
+                  "
+                >
+                  Show All Designs
+                </button>
               </div>
             </div>
           )}
