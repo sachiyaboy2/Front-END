@@ -21,6 +21,86 @@ import {
 
 import { Loader } from "../../components/loader";
 
+// =====================================================
+// GARMENT + MEASUREMENT CONFIG
+// =====================================================
+
+const garmentMeasurementConfig = {
+  "saree-jacket": {
+    label: "Saree Jacket",
+    fields: [
+      { name: "height", title: "Height / උස" },
+      { name: "shoulder", title: "Shoulder / උරපතු මිනුම" },
+      { name: "bust", title: "Bust / පපුව වට" },
+      { name: "abdomen", title: "Abdomen / උදරයේ ප්‍රදේශ මිම්ම" },
+      { name: "frontNeckDepth", title: "Front Neck Depth / ඉදිරි කර ගැඹුර" },
+      { name: "backNeckDepth", title: "Back Neck Depth / පිටුපස කර ගැඹුර" },
+      {
+        name: "topToBustPoint",
+        title: "Top to Bust Point / ඉහළ සිට බ්‍රා මධ්‍ය ලක්ෂ්‍යය",
+      },
+      {
+        name: "sideToBustPoint",
+        title: "Side to Bust Point / බ්‍රා මධ්‍ය ලක්ෂ්‍යය දක්වා",
+      },
+      { name: "sleeveLength", title: "Sleeve Length / අත දිග" },
+      { name: "sleeveCircumference", title: "Sleeve Circumference / අත වට" },
+      { name: "armhole", title: "Armhole / අත කැපුම" },
+    ],
+  },
+
+  frock: {
+    label: "Frock",
+    fields: [
+      { name: "shoulder", title: "Shoulder / උරහිස" },
+      { name: "waistLength", title: "Waist Length / ඉන දක්වා" },
+      { name: "bust", title: "Bust / පපුව" },
+      { name: "waist", title: "Waist / ඉන" },
+      { name: "sleeveCircumference", title: "Sleeve Circumference / අත වට" },
+      { name: "armhole", title: "Armhole / අත් කැපුම" },
+      { name: "skirtLength", title: "Skirt Length / සාය උස" },
+      { name: "frontNeckDepth", title: "Front Neck Depth / ඉදිරි කර ගැඹුර" },
+    ],
+  },
+
+  "crop-top": {
+    label: "Crop Top",
+    fields: [
+      { name: "height", title: "Height / උස" },
+      { name: "shoulder", title: "Shoulder / උරහිස" },
+      { name: "waistLength", title: "Waist Length / ඉන දක්වා" },
+      { name: "bust", title: "Bust / පපුව" },
+      { name: "waist", title: "Waist / ඉන" },
+      { name: "sleeveCircumference", title: "Sleeve Circumference / අත වට" },
+      { name: "armhole", title: "Armhole / අත් කැපුම" },
+      { name: "frontNeckDepth", title: "Front Neck Depth / ඉදිරි කර ගැඹුර" },
+    ],
+  },
+};
+
+const legacyMeasurementFields = [
+  { name: "bust", title: "Bust" },
+  { name: "underBust", title: "Under Bust" },
+  { name: "waist", title: "Waist" },
+  { name: "shoulder", title: "Shoulder" },
+  { name: "sleeveLength", title: "Sleeve Length" },
+  { name: "sleeveCircumference", title: "Sleeve Circumference" },
+  { name: "frontNeck", title: "Front Neck" },
+  { name: "backNeck", title: "Back Neck" },
+  { name: "jacketLength", title: "Jacket Length" },
+];
+
+function getGarmentLabel(garmentType) {
+  return garmentMeasurementConfig[garmentType]?.label || "Legacy Custom Design";
+}
+
+function getMeasurementFieldsForOrder(order) {
+  return (
+    garmentMeasurementConfig[order?.garmentType]?.fields ||
+    legacyMeasurementFields
+  );
+}
+
 export default function AdminCustomOrdersPage() {
   // =====================================================
 
@@ -69,12 +149,12 @@ export default function AdminCustomOrdersPage() {
   ];
 
   // =====================================================
-  // API ERROR MESSAGE
+
+  // PAYMENT STATUSES
+
   // =====================================================
 
-  function getApiErrorMessage(err, fallbackMessage) {
-    return err.response?.data?.message || fallbackMessage;
-  }
+  const paymentStatuses = ["Price Pending", "Payment Pending", "Paid"];
 
   // =====================================================
 
@@ -120,9 +200,11 @@ export default function AdminCustomOrdersPage() {
       })
 
       .catch((err) => {
-        console.error("Load Custom Orders Error:", err.message);
+        console.log("Load Custom Orders Error:", err);
 
-        toast.error(getApiErrorMessage(err, "Failed to load custom orders"));
+        toast.error(
+          err.response?.data?.message || "Failed to load custom orders",
+        );
       })
 
       .finally(() => {
@@ -212,9 +294,9 @@ export default function AdminCustomOrdersPage() {
 
       toast.success("Custom order price updated");
     } catch (err) {
-      console.error("Price Update Error:", err.message);
+      console.log("Price Update Error:", err);
 
-      toast.error(getApiErrorMessage(err, "Failed to update price"));
+      toast.error(err.response?.data?.message || "Failed to update price");
     } finally {
       setUpdatingOrderId(null);
     }
@@ -257,8 +339,8 @@ export default function AdminCustomOrdersPage() {
 
       return true;
     } catch (err) {
-      console.error("Status Update Error:", err.message);
-      toast.error(getApiErrorMessage(err, "Failed to update status"));
+      console.log("Status Update Error:", err);
+      toast.error(err.response?.data?.message || "Failed to update status");
       return false;
     } finally {
       setUpdatingOrderId(null);
@@ -277,54 +359,25 @@ export default function AdminCustomOrdersPage() {
 
   // =====================================================
 
-  // COLLECT REMAINING 50% BALANCE
+  // UPDATE PAYMENT STATUS
 
   // =====================================================
 
-  async function collectBalance(customOrderId) {
+  async function updatePaymentStatus(customOrderId, paymentStatus) {
     const token = localStorage.getItem("token");
-
-    if (token == null) {
-      toast.error("You need to login first");
-      return;
-    }
-
-    const currentOrder = orders.find(
-      (order) => order.customOrderId === customOrderId,
-    );
-
-    if (!currentOrder) {
-      toast.error("Custom order not found");
-      return;
-    }
-
-    if (
-      currentOrder.paymentPlan !== "Half Payment" ||
-      currentOrder.paymentStatus !== "Partially Paid" ||
-      currentOrder.balanceStatus !== "Pending"
-    ) {
-      toast.error("There is no pending delivery balance for this order");
-      return;
-    }
-
-    const remainingAmount = Number(currentOrder.remainingAmount || 0);
-
-    const confirmed = window.confirm(
-      `Confirm that LKR ${remainingAmount.toLocaleString()} was collected from the customer?`,
-    );
-
-    if (!confirmed) {
-      return;
-    }
 
     try {
       setUpdatingOrderId(customOrderId);
 
       const response = await axios.put(
         import.meta.env.VITE_API_URL +
-          "/api/custom-orders/balance/" +
+          "/api/custom-orders/payment/" +
           customOrderId,
-        {},
+
+        {
+          paymentStatus: paymentStatus,
+        },
+
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -332,51 +385,18 @@ export default function AdminCustomOrdersPage() {
         },
       );
 
-      if (!response.data?.order) {
-        throw new Error("Backend did not return the updated order");
-      }
-
       replaceOrder(response.data.order);
 
-      toast.success("Remaining balance marked as collected");
+      toast.success("Payment status updated");
     } catch (err) {
-      console.error("Collect Balance Error:", err.message);
+      console.log("Payment Update Error:", err);
 
       toast.error(
-        getApiErrorMessage(err, "Failed to collect remaining balance"),
+        err.response?.data?.message || "Failed to update payment status",
       );
     } finally {
       setUpdatingOrderId(null);
     }
-  }
-
-  // =====================================================
-
-  // PRICE EDIT SAFETY
-
-  // =====================================================
-
-  function canEditPrice(order) {
-    if (!order || order.status === "Cancelled") {
-      return false;
-    }
-
-    if (
-      order.paymentStatus === "Partially Paid" ||
-      order.paymentStatus === "Paid" ||
-      order.paymentStatus === "Chargedback"
-    ) {
-      return false;
-    }
-
-    if (
-      order.paymentStatus === "Payment Pending" &&
-      order.paymentPlan != null
-    ) {
-      return false;
-    }
-
-    return true;
   }
 
   // =====================================================
@@ -446,20 +466,8 @@ export default function AdminCustomOrdersPage() {
       return "bg-orange-100 text-orange-700 border-orange-200";
     }
 
-    if (status === "Partially Paid") {
-      return "bg-blue-100 text-blue-700 border-blue-200";
-    }
-
     if (status === "Paid") {
       return "bg-green-100 text-green-700 border-green-200";
-    }
-
-    if (status === "Failed") {
-      return "bg-red-100 text-red-700 border-red-200";
-    }
-
-    if (status === "Chargedback") {
-      return "bg-red-100 text-red-800 border-red-300";
     }
 
     return "bg-gray-100 text-gray-700 border-gray-200";
@@ -1107,15 +1115,17 @@ export default function AdminCustomOrdersPage() {
 
                       "
                   >
-                    {order.measurementType === "custom" ? (
-                      <FaRulerCombined />
-                    ) : (
-                      <FaTshirt />
-                    )}
+                    <FaTshirt />
 
-                    {order.measurementType === "custom"
-                      ? `Custom Measurements (${order.measurementUnit})`
-                      : `Standard Size - ${order.standardSize}`}
+                    <span>{getGarmentLabel(order.garmentType)}</span>
+
+                    <span className="text-[#b88f25]">•</span>
+
+                    <span>
+                      {order.measurementType === "custom"
+                        ? `Custom Measurements (${order.measurementUnit})`
+                        : `Standard Size - ${order.standardSize}`}
+                    </span>
                   </div>
 
                   {/* ================= PRICE ================= */}
@@ -1606,6 +1616,12 @@ export default function AdminCustomOrdersPage() {
 
                     <InfoCard
                       icon={<FaTshirt />}
+                      title="Garment Type"
+                      value={getGarmentLabel(selectedOrder.garmentType)}
+                    />
+
+                    <InfoCard
+                      icon={<FaTshirt />}
                       title="Fabric"
                       value={
                         selectedOrder.customerProvidesFabric
@@ -1796,59 +1812,16 @@ export default function AdminCustomOrdersPage() {
 
                     "
                   >
-                    <MeasurementCard
-                      title="Bust"
-                      value={selectedOrder.measurements?.bust}
-                      unit={selectedOrder.measurementUnit}
-                    />
-
-                    <MeasurementCard
-                      title="Under Bust"
-                      value={selectedOrder.measurements?.underBust}
-                      unit={selectedOrder.measurementUnit}
-                    />
-
-                    <MeasurementCard
-                      title="Waist"
-                      value={selectedOrder.measurements?.waist}
-                      unit={selectedOrder.measurementUnit}
-                    />
-
-                    <MeasurementCard
-                      title="Shoulder"
-                      value={selectedOrder.measurements?.shoulder}
-                      unit={selectedOrder.measurementUnit}
-                    />
-
-                    <MeasurementCard
-                      title="Sleeve Length"
-                      value={selectedOrder.measurements?.sleeveLength}
-                      unit={selectedOrder.measurementUnit}
-                    />
-
-                    <MeasurementCard
-                      title="Sleeve Circumference"
-                      value={selectedOrder.measurements?.sleeveCircumference}
-                      unit={selectedOrder.measurementUnit}
-                    />
-
-                    <MeasurementCard
-                      title="Front Neck"
-                      value={selectedOrder.measurements?.frontNeck}
-                      unit={selectedOrder.measurementUnit}
-                    />
-
-                    <MeasurementCard
-                      title="Back Neck"
-                      value={selectedOrder.measurements?.backNeck}
-                      unit={selectedOrder.measurementUnit}
-                    />
-
-                    <MeasurementCard
-                      title="Jacket Length"
-                      value={selectedOrder.measurements?.jacketLength}
-                      unit={selectedOrder.measurementUnit}
-                    />
+                    {getMeasurementFieldsForOrder(selectedOrder).map(
+                      (field) => (
+                        <MeasurementCard
+                          key={field.name}
+                          title={field.title}
+                          value={selectedOrder.measurements?.[field.name]}
+                          unit={selectedOrder.measurementUnit}
+                        />
+                      ),
+                    )}
                   </div>
                 </div>
               )}
@@ -1925,102 +1898,6 @@ export default function AdminCustomOrdersPage() {
                     )}
                   </div>
                 )}
-
-              {/* ===============================================
-
-                  PAYMENT DETAILS
-
-              =============================================== */}
-
-              {selectedOrder.price && (
-                <div className="mt-8">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div
-                      className="
-                        w-10
-                        h-10
-                        rounded-xl
-                        bg-[#6b1d2f]
-                        text-[#f3d975]
-                        flex
-                        items-center
-                        justify-center
-                      "
-                    >
-                      <FaDollarSign />
-                    </div>
-
-                    <div>
-                      <h3 className="text-xl font-black text-[#4a1624]">
-                        Payment Details
-                      </h3>
-
-                      <p className="text-xs text-[#9a8273] mt-1">
-                        Verified online payment information for this custom
-                        order.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <PaymentInfoCard
-                      title="Payment Plan"
-                      value={selectedOrder.paymentPlan || "Not selected"}
-                    />
-
-                    <PaymentInfoCard
-                      title="Payment Status"
-                      value={selectedOrder.paymentStatus}
-                    />
-
-                    <PaymentInfoCard
-                      title="Paid Amount"
-                      value={`LKR ${Number(
-                        selectedOrder.paidAmount || 0,
-                      ).toLocaleString()}`}
-                    />
-
-                    <PaymentInfoCard
-                      title="Remaining"
-                      value={`LKR ${Number(
-                        selectedOrder.remainingAmount || 0,
-                      ).toLocaleString()}`}
-                    />
-                  </div>
-
-                  {(selectedOrder.deliveryAddress ||
-                    selectedOrder.city ||
-                    selectedOrder.district) && (
-                    <div className="mt-4 rounded-2xl bg-white border border-[#eadaca] p-5">
-                      <p className="text-xs font-black uppercase text-[#b88f25]">
-                        Delivery Details
-                      </p>
-
-                      <p className="text-sm text-[#4a1624] mt-3 leading-7 font-bold">
-                        {selectedOrder.deliveryAddress || "-"}
-                        <br />
-                        {[selectedOrder.city, selectedOrder.district]
-                          .filter(Boolean)
-                          .join(", ") || "-"}
-                      </p>
-                    </div>
-                  )}
-
-                  {selectedOrder.onlinePaymentAt && (
-                    <p className="text-xs text-[#9a8273] mt-3">
-                      Online payment received:{" "}
-                      {formatDate(selectedOrder.onlinePaymentAt)}
-                    </p>
-                  )}
-
-                  {selectedOrder.paymentCompletedAt && (
-                    <p className="text-xs text-green-700 mt-1 font-bold">
-                      Payment completed:{" "}
-                      {formatDate(selectedOrder.paymentCompletedAt)}
-                    </p>
-                  )}
-                </div>
-              )}
 
               {/* ===============================================
 
@@ -2156,7 +2033,6 @@ export default function AdminCustomOrdersPage() {
                         type="number"
                         min="1"
                         value={priceInputs[selectedOrder.customOrderId] ?? ""}
-                        disabled={!canEditPrice(selectedOrder)}
                         onChange={(e) =>
                           setPriceInputs((old) => ({
                             ...old,
@@ -2179,20 +2055,13 @@ export default function AdminCustomOrdersPage() {
 
                           font-bold
 
-                          disabled:opacity-50
-
-                          disabled:cursor-not-allowed
-
                         "
                       />
                     </div>
 
                     <button
                       type="button"
-                      disabled={
-                        updatingOrderId === selectedOrder.customOrderId ||
-                        !canEditPrice(selectedOrder)
-                      }
+                      disabled={updatingOrderId === selectedOrder.customOrderId}
                       onClick={() => updatePrice(selectedOrder.customOrderId)}
                       className="
 
@@ -2212,21 +2081,10 @@ export default function AdminCustomOrdersPage() {
 
                         disabled:opacity-50
 
-                        disabled:cursor-not-allowed
-
                       "
                     >
-                      {canEditPrice(selectedOrder)
-                        ? "Save Quoted Price"
-                        : "Price Locked"}
+                      Save Quoted Price
                     </button>
-
-                    {!canEditPrice(selectedOrder) && (
-                      <p className="text-[11px] text-[#9a8273] mt-2 leading-5">
-                        Price is locked because this order already has payment
-                        activity or is cancelled.
-                      </p>
-                    )}
                   </div>
 
                   {/* ================= ORDER STATUS ================= */}
@@ -2325,106 +2183,76 @@ export default function AdminCustomOrdersPage() {
 
                       "
                     >
-                      Payment
+                      Payment Status
                     </label>
 
-                    <div className="mt-2 rounded-xl bg-[#faf7f2] border border-[#dfd0bf] p-4">
-                      <span
-                        className={`
+                    <select
+                      value={selectedOrder.paymentStatus}
+                      disabled={updatingOrderId === selectedOrder.customOrderId}
+                      onChange={(e) =>
+                        updatePaymentStatus(
+                          selectedOrder.customOrderId,
 
-                          inline-flex
+                          e.target.value,
+                        )
+                      }
+                      className="
 
-                          px-3
+                        w-full
 
-                          py-1
+                        mt-2
 
-                          rounded-full
+                        p-3
 
-                          border
+                        rounded-xl
 
-                          text-xs
+                        bg-[#faf7f2]
 
-                          font-black
+                        border
 
-                          ${getPaymentStyle(selectedOrder.paymentStatus)}
+                        border-[#dfd0bf]
 
-                        `}
-                      >
-                        {selectedOrder.paymentStatus}
-                      </span>
+                        text-[#4a1624]
 
-                      <div className="mt-4 space-y-2 text-sm">
-                        <div className="flex justify-between gap-3">
-                          <span className="text-[#9a8273]">Payment Plan</span>
-                          <span className="font-black text-[#4a1624] text-right">
-                            {selectedOrder.paymentPlan || "Not selected"}
-                          </span>
-                        </div>
+                        font-bold
 
-                        <div className="flex justify-between gap-3">
-                          <span className="text-[#9a8273]">Paid</span>
-                          <span className="font-black text-[#4a1624]">
-                            LKR{" "}
-                            {Number(
-                              selectedOrder.paidAmount || 0,
-                            ).toLocaleString()}
-                          </span>
-                        </div>
+                        outline-none
 
-                        <div className="flex justify-between gap-3">
-                          <span className="text-[#9a8273]">Remaining</span>
-                          <span className="font-black text-[#6b1d2f]">
-                            LKR{" "}
-                            {Number(
-                              selectedOrder.remainingAmount || 0,
-                            ).toLocaleString()}
-                          </span>
-                        </div>
+                      "
+                    >
+                      {paymentStatuses.map((paymentStatus) => (
+                        <option key={paymentStatus} value={paymentStatus}>
+                          {paymentStatus}
+                        </option>
+                      ))}
+                    </select>
 
-                        <div className="flex justify-between gap-3">
-                          <span className="text-[#9a8273]">Balance Status</span>
-                          <span className="font-black text-[#4a1624] text-right">
-                            {selectedOrder.balanceStatus || "Not Applicable"}
-                          </span>
-                        </div>
-                      </div>
+                    <span
+                      className={`
 
-                      {selectedOrder.paymentPlan === "Half Payment" &&
-                        selectedOrder.paymentStatus === "Partially Paid" &&
-                        selectedOrder.balanceStatus === "Pending" && (
-                          <button
-                            type="button"
-                            disabled={
-                              updatingOrderId === selectedOrder.customOrderId
-                            }
-                            onClick={() =>
-                              collectBalance(selectedOrder.customOrderId)
-                            }
-                            className="
-                              w-full
-                              mt-4
-                              py-3
-                              rounded-xl
-                              bg-[#d4af37]
-                              text-[#4a1624]
-                              font-black
-                              disabled:opacity-50
-                              disabled:cursor-not-allowed
-                            "
-                          >
-                            {updatingOrderId === selectedOrder.customOrderId
-                              ? "Updating..."
-                              : `Mark LKR ${Number(
-                                  selectedOrder.remainingAmount || 0,
-                                ).toLocaleString()} Balance Collected`}
-                          </button>
-                        )}
+                        inline-flex
 
-                      <p className="text-[11px] text-[#9a8273] mt-3 leading-5">
-                        Online payment status is updated automatically after the
-                        verified PayHere callback.
-                      </p>
-                    </div>
+                        mt-3
+
+                        px-3
+
+                        py-1
+
+                        rounded-full
+
+                        border
+
+                        text-xs
+
+                        font-black
+
+
+                        ${getPaymentStyle(selectedOrder.paymentStatus)}
+
+                      `}
+                    >
+                      {selectedOrder.paymentStatus}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -2786,32 +2614,6 @@ function InfoCard({ icon, title, value }) {
 
         "
       >
-        {value || "-"}
-      </p>
-    </div>
-  );
-}
-
-// =====================================================
-
-// PAYMENT INFO CARD
-
-// =====================================================
-
-function PaymentInfoCard({ title, value }) {
-  return (
-    <div
-      className="
-        bg-white
-        border
-        border-[#eadaca]
-        rounded-2xl
-        p-4
-      "
-    >
-      <p className="text-[10px] uppercase font-black text-[#9a8273]">{title}</p>
-
-      <p className="text-lg font-black text-[#4a1624] mt-2 break-words">
         {value || "-"}
       </p>
     </div>

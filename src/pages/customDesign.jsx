@@ -15,6 +15,7 @@ import {
   FaSave,
   FaTshirt,
   FaTrash,
+  FaTimes,
 } from "react-icons/fa";
 
 import { createClient } from "@supabase/supabase-js";
@@ -33,109 +34,245 @@ const supabase = createClient(
 
 // =====================================================
 
-// EMPTY MEASUREMENTS
+// GARMENT MEASUREMENT CONFIG
 
 // =====================================================
 
 const emptyMeasurements = {
-  bust: "",
-
-  underBust: "",
-
-  waist: "",
-
+  height: "",
   shoulder: "",
-
+  bust: "",
+  abdomen: "",
+  waist: "",
+  waistLength: "",
+  frontNeckDepth: "",
+  backNeckDepth: "",
+  topToBustPoint: "",
+  sideToBustPoint: "",
   sleeveLength: "",
-
   sleeveCircumference: "",
+  armhole: "",
+  skirtLength: "",
 
+  // Legacy fields kept for old saved profiles/orders.
+  underBust: "",
   frontNeck: "",
-
   backNeck: "",
-
   jacketLength: "",
 };
 
-// =====================================================
-
-// MEASUREMENT FIELDS
-
-// =====================================================
-
-const measurementFields = [
-  {
-    name: "bust",
-
-    label: "Bust",
-
-    sinhala: "පපුව වට",
+const garmentConfig = {
+  "saree-jacket": {
+    label: "Saree Jacket",
+    profileKey: "sareeJacket",
+    guideImage: "/measurement-guides/saree-jacket-guide.png",
+    fields: [
+      {
+        name: "height",
+        label: "Height",
+        sinhala: "උස",
+        guide:
+          "උරහිසේ ඉහළ ස්ථානයේ සිට jacket එක අවසන් විය යුතු තැන දක්වා සෘජුව මැනගන්න.",
+      },
+      {
+        name: "shoulder",
+        label: "Shoulder",
+        sinhala: "උරපතු මිනුම",
+        guide: "එක් උරහිස් අගයක සිට පිටුපසින් අනෙක් උරහිස් අගය දක්වා මැනගන්න.",
+      },
+      {
+        name: "bust",
+        label: "Bust",
+        sinhala: "පපුව වට",
+        guide:
+          "පපුවේ වැඩිම ප්‍රදේශය වටා measuring tape එක සමාන්තරව තබා මැනගන්න.",
+      },
+      {
+        name: "abdomen",
+        label: "Abdomen",
+        sinhala: "උදරයේ ප්‍රදේශ මිම්ම",
+        guide: "උදරයේ වැඩිම ප්‍රදේශය වටා tape එක සමාන්තරව තබා වට මිනුම ගන්න.",
+      },
+      {
+        name: "frontNeckDepth",
+        label: "Front Neck Depth",
+        sinhala: "ඉදිරි කර ගැඹුර",
+        guide:
+          "ගෙල මැද ඉහළ ලක්ෂ්‍යයේ සිට ඉදිරි කර අවසන් විය යුතු පහළ ලක්ෂ්‍යය දක්වා මැනගන්න.",
+      },
+      {
+        name: "backNeckDepth",
+        label: "Back Neck Depth",
+        sinhala: "පිටුපස කර ගැඹුර",
+        guide:
+          "පිටුපස ගෙල මැද ඉහළ ලක්ෂ්‍යයේ සිට පිටුපස කර අවසන් විය යුතු තැන දක්වා මැනගන්න.",
+      },
+      {
+        name: "topToBustPoint",
+        label: "Top to Bust Point",
+        sinhala: "ඉහළ සිට බ්‍රා මධ්‍ය ලක්ෂ්‍ය තෙක් දුර",
+        guide:
+          "උරහිසේ ඉහළ ලක්ෂ්‍යයේ සිට පපුවේ මධ්‍ය ලක්ෂ්‍යය දක්වා සෘජුව මැනගන්න.",
+      },
+      {
+        name: "sideToBustPoint",
+        label: "Side to Bust Point",
+        sinhala: "පැත්තෙන් සිට බ්‍රා මධ්‍ය ලක්ෂ්‍ය තෙක් දුර",
+        guide: "ශරීරයේ පැත්තෙන් පපුවේ මධ්‍ය ලක්ෂ්‍යය දක්වා තිරස්ව මැනගන්න.",
+      },
+      {
+        name: "sleeveLength",
+        label: "Sleeve Length",
+        sinhala: "අත දිග",
+        guide:
+          "උරහිස් අගයේ සිට අතේ අවශ්‍ය sleeve අවසානය දක්වා අත දිගේ මැනගන්න.",
+      },
+      {
+        name: "sleeveCircumference",
+        label: "Sleeve Circumference",
+        sinhala: "අත වට",
+        guide: "අතේ වැඩිම කොටස වටා tape එක තබා තද නොකර වට මිනුම ගන්න.",
+      },
+      {
+        name: "armhole",
+        label: "Armhole",
+        sinhala: "අත කැපුම",
+        guide:
+          "අත ශරීරයට සම්බන්ධ වන armhole ප්‍රදේශය වටා tape එක ගෙන සම්පූර්ණ වටය මැනගන්න.",
+      },
+    ],
   },
 
-  {
-    name: "underBust",
-
-    label: "Under Bust",
-
-    sinhala: "පපුව යට වට",
+  frock: {
+    label: "Frock",
+    profileKey: "frock",
+    guideImage: "/measurement-guides/frock-guide.png",
+    fields: [
+      {
+        name: "shoulder",
+        label: "Shoulder",
+        sinhala: "උරහිස",
+        guide: "එක් උරහිස් අගයක සිට අනෙක් උරහිස් අගය දක්වා පිටුපසින් මැනගන්න.",
+      },
+      {
+        name: "waistLength",
+        label: "Waist Length",
+        sinhala: "ඉන දක්වා",
+        guide:
+          "උරහිසේ ඉහළ ලක්ෂ්‍යයේ සිට ස්වභාවික ඉන රේඛාව දක්වා සෘජුව මැනගන්න.",
+      },
+      {
+        name: "bust",
+        label: "Bust",
+        sinhala: "පපුව",
+        guide: "පපුවේ වැඩිම ප්‍රදේශය වටා tape එක සමාන්තරව තබා වට මිනුම ගන්න.",
+      },
+      {
+        name: "waist",
+        label: "Waist",
+        sinhala: "ඉන",
+        guide: "ස්වභාවික ඉන රේඛාව වටා tape එක තද නොකර මැනගන්න.",
+      },
+      {
+        name: "sleeveCircumference",
+        label: "Sleeve Circumference",
+        sinhala: "අත වට",
+        guide: "අතේ වැඩිම කොටස වටා tape එක තබා වට මිනුම ගන්න.",
+      },
+      {
+        name: "armhole",
+        label: "Armhole",
+        sinhala: "අත් කැපුම",
+        guide:
+          "අත ශරීරයට සම්බන්ධ වන armhole ප්‍රදේශය වටා සම්පූර්ණ වටය මැනගන්න.",
+      },
+      {
+        name: "skirtLength",
+        label: "Skirt Length",
+        sinhala: "සාය උස",
+        guide:
+          "ඉන රේඛාවේ සිට ගවුමේ සාය අවසන් විය යුතු තැන දක්වා සෘජුව මැනගන්න.",
+      },
+      {
+        name: "frontNeckDepth",
+        label: "Front Neck Depth",
+        sinhala: "ඉදිරි කර ගැඹුර",
+        guide:
+          "ගෙල ඉදිරි මැද ඉහළ ලක්ෂ්‍යයේ සිට කර අවසන් විය යුතු තැන දක්වා මැනගන්න.",
+      },
+    ],
   },
 
-  {
-    name: "waist",
-
-    label: "Waist",
-
-    sinhala: "ඉණ",
+  "crop-top": {
+    label: "Crop Top",
+    profileKey: "cropTop",
+    guideImage: "/measurement-guides/crop-top-guide.png",
+    fields: [
+      {
+        name: "height",
+        label: "Height",
+        sinhala: "උස",
+        guide:
+          "උරහිසේ ඉහළ ලක්ෂ්‍යයේ සිට crop top එක අවසන් විය යුතු තැන දක්වා සෘජුව මැනගන්න.",
+      },
+      {
+        name: "shoulder",
+        label: "Shoulder",
+        sinhala: "උරහිස",
+        guide: "එක් උරහිස් අගයක සිට අනෙක් උරහිස් අගය දක්වා පිටුපසින් මැනගන්න.",
+      },
+      {
+        name: "waistLength",
+        label: "Waist Length",
+        sinhala: "ඉන දක්වා",
+        guide:
+          "උරහිසේ ඉහළ ලක්ෂ්‍යයේ සිට ස්වභාවික ඉන රේඛාව දක්වා සෘජුව මැනගන්න.",
+      },
+      {
+        name: "bust",
+        label: "Bust",
+        sinhala: "පපුව",
+        guide: "පපුවේ වැඩිම ප්‍රදේශය වටා tape එක සමාන්තරව තබා වට මිනුම ගන්න.",
+      },
+      {
+        name: "waist",
+        label: "Waist",
+        sinhala: "ඉන",
+        guide: "ස්වභාවික ඉන රේඛාව වටා tape එක තද නොකර මැනගන්න.",
+      },
+      {
+        name: "sleeveCircumference",
+        label: "Sleeve Circumference",
+        sinhala: "අත වට",
+        guide: "අතේ වැඩිම කොටස වටා tape එක තබා වට මිනුම ගන්න.",
+      },
+      {
+        name: "armhole",
+        label: "Armhole",
+        sinhala: "අත් කැපුම",
+        guide:
+          "අත ශරීරයට සම්බන්ධ වන armhole ප්‍රදේශය වටා සම්පූර්ණ වටය මැනගන්න.",
+      },
+      {
+        name: "frontNeckDepth",
+        label: "Front Neck Depth",
+        sinhala: "ඉදිරි කර ගැඹුර",
+        guide:
+          "ගෙල ඉදිරි මැද ඉහළ ලක්ෂ්‍යයේ සිට කර අවසන් විය යුතු තැන දක්වා මැනගන්න.",
+      },
+    ],
   },
+};
 
-  {
-    name: "shoulder",
+function getSavedGarmentProfile(savedProfile, garmentType) {
+  if (!savedProfile || !garmentConfig[garmentType]) {
+    return null;
+  }
 
-    label: "Shoulder",
+  const profileKey = garmentConfig[garmentType].profileKey;
 
-    sinhala: "උරහිස",
-  },
-
-  {
-    name: "sleeveLength",
-
-    label: "Sleeve Length",
-
-    sinhala: "අත් දිග",
-  },
-
-  {
-    name: "sleeveCircumference",
-
-    label: "Sleeve Circumference",
-
-    sinhala: "අත් වට",
-  },
-
-  {
-    name: "frontNeck",
-
-    label: "Front Neck",
-
-    sinhala: "ඉදිරි කර",
-  },
-
-  {
-    name: "backNeck",
-
-    label: "Back Neck",
-
-    sinhala: "පසුපස කර",
-  },
-
-  {
-    name: "jacketLength",
-
-    label: "Jacket Length",
-
-    sinhala: "ජැකට් දිග",
-  },
-];
+  return savedProfile.garmentProfiles?.[profileKey] || null;
+}
 
 export default function CustomDesign() {
   const navigate = useNavigate();
@@ -149,6 +286,10 @@ export default function CustomDesign() {
   const [designFile, setDesignFile] = useState(null);
 
   const [preview, setPreview] = useState("");
+
+  const [garmentType, setGarmentType] = useState("saree-jacket");
+
+  const [guideOpen, setGuideOpen] = useState(false);
 
   const [measurementType, setMeasurementType] = useState("standard");
 
@@ -171,6 +312,12 @@ export default function CustomDesign() {
   const [isLoadingSaved, setIsLoadingSaved] = useState(true);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const currentGarment = garmentConfig[garmentType];
+
+  const measurementFields = currentGarment?.fields || [];
+
+  const savedGarmentProfile = getSavedGarmentProfile(savedProfile, garmentType);
 
   // =====================================================
 
@@ -314,23 +461,38 @@ export default function CustomDesign() {
   // =====================================================
 
   function useSavedMeasurements() {
-    if (!savedProfile) {
-      toast.error("No saved measurements found");
+    if (!savedGarmentProfile) {
+      toast.error(`No saved ${currentGarment.label} measurements found`);
 
       return;
     }
 
     setMeasurementType("custom");
 
-    setMeasurementUnit(savedProfile.measurementUnit || "in");
+    setMeasurementUnit(savedGarmentProfile.measurementUnit || "in");
 
     setMeasurements({
       ...emptyMeasurements,
 
-      ...savedProfile.measurements,
+      ...savedGarmentProfile.measurements,
     });
 
-    toast.success("Saved measurements loaded");
+    toast.success(`${currentGarment.label} measurements loaded`);
+  }
+
+  // =====================================================
+  // CHANGE GARMENT
+  // =====================================================
+
+  function handleGarmentChange(newGarmentType) {
+    if (!garmentConfig[newGarmentType]) {
+      return;
+    }
+
+    setGarmentType(newGarmentType);
+    setMeasurements({ ...emptyMeasurements });
+    setSaveMeasurements(false);
+    setGuideOpen(false);
   }
 
   // =====================================================
@@ -390,6 +552,15 @@ export default function CustomDesign() {
     if (!designFile) {
       toast.error("Please upload your design photo");
 
+      return;
+    }
+
+    // =========================================
+    // GARMENT TYPE CHECK
+    // =========================================
+
+    if (!garmentConfig[garmentType]) {
+      toast.error("Please select what you want us to sew");
       return;
     }
 
@@ -486,6 +657,8 @@ export default function CustomDesign() {
         telephone: telephone.trim(),
 
         designImage: designImage,
+
+        garmentType: garmentType,
 
         measurementType: measurementType,
 
@@ -889,75 +1062,85 @@ export default function CustomDesign() {
 
           {/* =================================================
 
-              2. MEASUREMENTS
+              2. GARMENT + MEASUREMENTS
 
           ================================================= */}
 
           <section className="mt-8">
-            <SectionTitle number="2" title="Size / Measurements" />
+            <SectionTitle number="2" title="Garment / Size / Measurements" />
 
             {/* ===============================================
+                GARMENT TYPE
+            =============================================== */}
 
+            <div className="mt-4">
+              <p className="text-xs font-black uppercase tracking-wide text-[#9a7652]">
+                What do you want us to sew?
+              </p>
+
+              <div className="grid sm:grid-cols-3 gap-3 mt-3">
+                {Object.entries(garmentConfig).map(([key, garment]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => handleGarmentChange(key)}
+                    className={`
+                      min-h-[74px]
+                      px-4
+                      py-3
+                      rounded-2xl
+                      border-2
+                      text-sm
+                      font-black
+                      transition-all
+                      ${
+                        garmentType === key
+                          ? "bg-[#6b1d2f] border-[#d4af37] text-[#f3d975] shadow-md"
+                          : "bg-white border-[#e3d2c1] text-[#6b1d2f] hover:border-[#d4af37]"
+                      }
+                    `}
+                  >
+                    <FaTshirt className="inline mr-2" />
+                    {garment.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* ===============================================
                 TYPE TABS
-
             =============================================== */}
 
             <div
               className="
-
-                mt-3
-
+                mt-5
                 grid
-
                 grid-cols-2
-
                 gap-2
-
                 bg-[#f4ecdf]
-
                 rounded-2xl
-
                 p-1.5
-
                 border
-
                 border-[#e3d1b9]
-
               "
             >
               <button
                 type="button"
                 onClick={() => setMeasurementType("standard")}
                 className={`
-
                   py-3
-
                   rounded-xl
-
                   font-bold
-
                   text-sm
-
                   transition-all
-
-
                   ${
                     measurementType === "standard"
                       ? "bg-[#6b1d2f] text-[#f3d975] shadow-md"
                       : "text-[#6b1d2f] hover:bg-white"
                   }
-
                 `}
               >
-                <FaTshirt
-                  className="
-
-                    inline
-
-                    mr-2
-
-                  "
-                />
+                <FaTshirt className="inline mr-2" />
                 Standard Sizes
               </button>
 
@@ -965,123 +1148,62 @@ export default function CustomDesign() {
                 type="button"
                 onClick={() => setMeasurementType("custom")}
                 className={`
-
                   py-3
-
                   rounded-xl
-
                   font-bold
-
                   text-sm
-
                   transition-all
-
-
                   ${
                     measurementType === "custom"
                       ? "bg-[#6b1d2f] text-[#f3d975] shadow-md"
                       : "text-[#6b1d2f] hover:bg-white"
                   }
-
                 `}
               >
-                <FaRulerCombined
-                  className="
-
-                    inline
-
-                    mr-2
-
-                  "
-                />
+                <FaRulerCombined className="inline mr-2" />
                 Custom Measurements
               </button>
             </div>
 
             {/* ===============================================
-
                 STANDARD SIZE
-
             =============================================== */}
 
             {measurementType === "standard" && (
               <div
                 className="
-
                   mt-5
-
                   rounded-[20px]
-
                   bg-[#fbf8f4]
-
                   border
-
                   border-[#e4d5c5]
-
                   p-5
-
                 "
               >
-                <p
-                  className="
-
-                    text-xs
-
-                    font-black
-
-                    tracking-wide
-
-                    uppercase
-
-                    text-[#9a7652]
-
-                  "
-                >
-                  Select Standard Size
+                <p className="text-xs font-black tracking-wide uppercase text-[#9a7652]">
+                  Select Standard Size for {currentGarment.label}
                 </p>
 
-                <div
-                  className="
-
-                    flex
-
-                    flex-wrap
-
-                    gap-3
-
-                    mt-4
-
-                  "
-                >
+                <div className="flex flex-wrap gap-3 mt-4">
                   {["S", "M", "L", "XL", "2XL"].map((size) => (
                     <button
                       key={size}
                       type="button"
                       onClick={() => setStandardSize(size)}
                       className={`
-
-                          min-w-[52px]
-
-                          h-[48px]
-
-                          px-4
-
-                          rounded-xl
-
-                          border-2
-
-                          font-black
-
-                          transition-all
-
-
-                          ${
-                            standardSize === size
-                              ? "bg-[#6b1d2f] border-[#d4af37] text-[#f3d975] shadow-md"
-                              : "bg-white border-[#e3d2c1] text-[#6b1d2f] hover:border-[#d4af37]"
-                          }
-
-                        `}
+                        min-w-[52px]
+                        h-[48px]
+                        px-4
+                        rounded-xl
+                        border-2
+                        font-black
+                        transition-all
+                        ${
+                          standardSize === size
+                            ? "bg-[#6b1d2f] border-[#d4af37] text-[#f3d975] shadow-md"
+                            : "bg-white border-[#e3d2c1] text-[#6b1d2f] hover:border-[#d4af37]"
+                        }
+                      `}
                     >
                       {size}
                     </button>
@@ -1091,86 +1213,80 @@ export default function CustomDesign() {
             )}
 
             {/* ===============================================
-
                 CUSTOM MEASUREMENTS
-
             =============================================== */}
 
             {measurementType === "custom" && (
               <div
                 className="
-
                   mt-5
-
                   rounded-[20px]
-
                   bg-[#fbf8f4]
-
                   border
-
                   border-[#e4d5c5]
-
                   p-5
-
                   md:p-6
-
                 "
               >
+                {/* GUIDE */}
+
+                <div className="rounded-2xl border border-[#e2c86d] bg-[#fff8e7] p-4 mb-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-wide text-[#9a7652]">
+                        Measurement Guide
+                      </p>
+                      <p className="text-sm font-bold text-[#4a1624] mt-1">
+                        {currentGarment.label} measurements නිවැරදිව ගන්නා ආකාරය
+                        බලන්න.
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setGuideOpen(true)}
+                      className="
+                        shrink-0
+                        px-4
+                        py-3
+                        rounded-xl
+                        bg-[#6b1d2f]
+                        text-[#f3d975]
+                        font-black
+                        text-sm
+                        border
+                        border-[#d4af37]
+                        hover:-translate-y-0.5
+                        transition-all
+                      "
+                    >
+                      <FaRulerCombined className="inline mr-2" />
+                      මිනුම් Guide එක බලන්න
+                    </button>
+                  </div>
+                </div>
+
                 {/* UNIT + SAVED */}
 
                 <div
                   className="
-
                     flex
-
                     flex-col
-
                     md:flex-row
-
                     md:items-center
-
                     md:justify-between
-
                     gap-4
-
                     pb-5
-
                     border-b
-
                     border-[#eadfd2]
-
                   "
                 >
                   <div>
-                    <p
-                      className="
-
-                        text-xs
-
-                        font-black
-
-                        uppercase
-
-                        tracking-wide
-
-                        text-[#9a7652]
-
-                      "
-                    >
+                    <p className="text-xs font-black uppercase tracking-wide text-[#9a7652]">
                       Measurement Unit
                     </p>
 
-                    <div
-                      className="
-
-                        flex
-
-                        gap-2
-
-                        mt-2
-
-                      "
-                    >
+                    <div className="flex gap-2 mt-2">
                       <UnitButton
                         title="Inches"
                         active={measurementUnit === "in"}
@@ -1185,155 +1301,83 @@ export default function CustomDesign() {
                     </div>
                   </div>
 
-                  {!isLoadingSaved && savedProfile && (
+                  {!isLoadingSaved && savedGarmentProfile && (
                     <button
                       type="button"
                       onClick={useSavedMeasurements}
                       className="
-
                         flex
-
                         items-center
-
                         justify-center
-
                         gap-2
-
                         px-4
-
                         py-3
-
                         rounded-xl
-
                         bg-[#fff8e7]
-
                         text-[#7a5c12]
-
                         border
-
                         border-[#d4af37]
-
                         font-bold
-
                         text-sm
-
                         hover:bg-[#d4af37]
-
                         hover:text-[#4a1624]
-
                         transition-all
-
                       "
                     >
                       <FaSave />
-                      Use Saved Measurements
+                      Use Saved {currentGarment.label} Measurements
                     </button>
                   )}
                 </div>
 
                 {/* MEASUREMENT INPUTS */}
 
-                <div
-                  className="
-
-                    grid
-
-                    md:grid-cols-2
-
-                    gap-5
-
-                    mt-6
-
-                  "
-                >
-                  {measurementFields.map((field) => (
+                <div className="grid md:grid-cols-2 gap-5 mt-6">
+                  {measurementFields.map((field, index) => (
                     <label key={field.name}>
-                      <span
-                        className="
-
-                            text-xs
-
-                            font-bold
-
-                            text-[#5b1a2b]
-
-                          "
-                      >
+                      <span className="text-xs font-bold text-[#5b1a2b]">
+                        <span className="inline-flex w-5 h-5 mr-1 items-center justify-center rounded-full bg-[#6b1d2f] text-[#f3d975] text-[10px]">
+                          {index + 1}
+                        </span>
                         {field.sinhala}{" "}
-                        <span
-                          className="
-
-                              text-[#9a8273]
-
-                              font-normal
-
-                            "
-                        >
+                        <span className="text-[#9a8273] font-normal">
                           ({field.label})
                         </span>
                       </span>
 
                       <div
                         className="
-
-                            mt-2
-
-                            flex
-
-                            items-center
-
-                            rounded-xl
-
-                            bg-white
-
-                            border
-
-                            border-[#dfd0bf]
-
-                            focus-within:border-[#d4af37]
-
-                            overflow-hidden
-
-                          "
+                          mt-2
+                          flex
+                          items-center
+                          rounded-xl
+                          bg-white
+                          border
+                          border-[#dfd0bf]
+                          focus-within:border-[#d4af37]
+                          overflow-hidden
+                        "
                       >
                         <input
                           type="number"
                           step="0.01"
                           min="0"
                           name={field.name}
-                          value={measurements[field.name]}
+                          value={measurements[field.name] ?? ""}
                           onChange={handleMeasurementChange}
                           placeholder={
                             measurementUnit === "in" ? "eg: 34" : "eg: 86"
                           }
                           className="
-
-                              w-full
-
-                              p-3.5
-
-                              outline-none
-
-                              text-[#4a1624]
-
-                              bg-transparent
-
-                            "
+                            w-full
+                            p-3.5
+                            outline-none
+                            text-[#4a1624]
+                            bg-transparent
+                          "
                         />
 
-                        <span
-                          className="
-
-                              pr-4
-
-                              text-xs
-
-                              font-bold
-
-                              text-[#b88f25]
-
-                            "
-                        >
+                        <span className="pr-4 text-xs font-bold text-[#b88f25]">
                           {measurementUnit}
                         </span>
                       </div>
@@ -1345,70 +1389,33 @@ export default function CustomDesign() {
 
                 <label
                   className="
-
                     mt-6
-
                     flex
-
                     items-start
-
                     gap-3
-
                     rounded-xl
-
                     bg-white
-
                     border
-
                     border-[#e3d2c1]
-
                     p-4
-
                     cursor-pointer
-
                   "
                 >
                   <input
                     type="checkbox"
                     checked={saveMeasurements}
                     onChange={(e) => setSaveMeasurements(e.target.checked)}
-                    className="
-
-                      mt-1
-
-                      accent-[#6b1d2f]
-
-                    "
+                    className="mt-1 accent-[#6b1d2f]"
                   />
 
                   <div>
-                    <p
-                      className="
-
-                        text-sm
-
-                        font-bold
-
-                        text-[#4a1624]
-
-                      "
-                    >
-                      Save these measurements
+                    <p className="text-sm font-bold text-[#4a1624]">
+                      Save these {currentGarment.label} measurements
                     </p>
 
-                    <p
-                      className="
-
-                        text-xs
-
-                        text-[#9a8273]
-
-                        mt-1
-
-                      "
-                    >
-                      ඊළඟ custom order එකේ නැවත measurements type කරන්න අවශ්‍ය
-                      නැහැ.
+                    <p className="text-xs text-[#9a8273] mt-1">
+                      ඊළඟ {currentGarment.label} custom order එකේ නැවත
+                      measurements type කරන්න අවශ්‍ය නැහැ.
                     </p>
                   </div>
                 </label>
@@ -1724,6 +1731,162 @@ export default function CustomDesign() {
           </button>
         </div>
       </div>
+
+      {/* =================================================
+          MEASUREMENT GUIDE POPUP
+      ================================================= */}
+
+      {guideOpen && currentGarment && (
+        <div
+          className="
+            fixed
+            inset-0
+            z-[200]
+            bg-black/60
+            backdrop-blur-sm
+            p-3
+            sm:p-5
+            flex
+            items-center
+            justify-center
+          "
+          onClick={() => setGuideOpen(false)}
+        >
+          <div
+            className="
+              w-full
+              max-w-5xl
+              max-h-[94vh]
+              overflow-y-auto
+              bg-[#faf7f2]
+              rounded-[28px]
+              border-2
+              border-[#d4af37]
+              shadow-2xl
+            "
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              className="
+                sticky
+                top-0
+                z-10
+                bg-[#6b1d2f]
+                text-white
+                p-5
+                sm:p-6
+                flex
+                items-start
+                justify-between
+                gap-4
+                rounded-t-[25px]
+              "
+            >
+              <div>
+                <p className="text-[#d4af37] text-xs font-black tracking-[2px] uppercase">
+                  NariCraft Measurement Guide
+                </p>
+                <h2 className="text-xl sm:text-2xl font-black mt-1">
+                  {currentGarment.label} මිනුම් ගන්නා ආකාරය
+                </h2>
+                <p className="text-[#ead7ca] text-xs mt-2">
+                  Tape එක අධිකව තද නොකර, සෘජුව සහ නිවැරදිව මිනුම් ගන්න.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setGuideOpen(false)}
+                className="
+                  w-11
+                  h-11
+                  shrink-0
+                  rounded-full
+                  bg-white/10
+                  flex
+                  items-center
+                  justify-center
+                  hover:bg-white
+                  hover:text-[#6b1d2f]
+                  transition-all
+                "
+                aria-label="Close measurement guide"
+              >
+                <FaTimes />
+              </button>
+            </div>
+
+            <div className="p-5 sm:p-7">
+              <div className="bg-white rounded-2xl border border-[#eadaca] overflow-hidden">
+                <img
+                  src={currentGarment.guideImage}
+                  alt={`${currentGarment.label} measurement guide`}
+                  className="w-full max-h-[680px] object-contain"
+                />
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4 mt-6">
+                {currentGarment.fields.map((field, index) => (
+                  <div
+                    key={field.name}
+                    className="bg-white border border-[#eadaca] rounded-2xl p-4"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div
+                        className="
+                          w-8
+                          h-8
+                          shrink-0
+                          rounded-full
+                          bg-[#6b1d2f]
+                          text-[#f3d975]
+                          flex
+                          items-center
+                          justify-center
+                          text-xs
+                          font-black
+                        "
+                      >
+                        {index + 1}
+                      </div>
+
+                      <div>
+                        <p className="font-black text-[#4a1624]">
+                          {field.sinhala}
+                        </p>
+                        <p className="text-[11px] font-bold text-[#b88f25] mt-0.5">
+                          {field.label}
+                        </p>
+                        <p className="text-sm text-[#806f63] leading-6 mt-2">
+                          {field.guide}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setGuideOpen(false)}
+                className="
+                  w-full
+                  mt-6
+                  py-3.5
+                  rounded-2xl
+                  bg-[#6b1d2f]
+                  text-[#f3d975]
+                  font-black
+                  border-2
+                  border-[#d4af37]
+                "
+              >
+                Guide එක වසන්න
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
