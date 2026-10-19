@@ -137,37 +137,6 @@ export default function CheckOutPage() {
   }, 0);
 
   // =====================================================
-  // REDIRECT TO PAYHERE
-  // =====================================================
-
-  function submitToPayHere(actionUrl, paymentData) {
-    const form = document.createElement("form");
-
-    form.method = "POST";
-    form.action = actionUrl;
-
-    Object.entries(paymentData).forEach(([name, value]) => {
-      if (value === undefined || value === null) {
-        return;
-      }
-
-      const input = document.createElement("input");
-
-      input.type = "hidden";
-
-      input.name = name;
-
-      input.value = String(value);
-
-      form.appendChild(input);
-    });
-
-    document.body.appendChild(form);
-
-    form.submit();
-  }
-
-  // =====================================================
   // PURCHASE CART
   // =====================================================
 
@@ -295,11 +264,12 @@ export default function CheckOutPage() {
 
       // ==========================================
       // STEP 2
-      // CREATE PAYHERE PAYMENT REQUEST
+      // CREATE PAYMENTS.LK SANDBOX CHECKOUT
       // ==========================================
 
       const paymentResponse = await axios.post(
-        import.meta.env.VITE_API_URL + "/api/payments/product/initiate",
+        import.meta.env.VITE_API_URL +
+          "/api/payments/payments-lk/product/initiate",
 
         {
           orderId: orderIdForPayment,
@@ -314,10 +284,10 @@ export default function CheckOutPage() {
         },
       );
 
-      const { actionUrl, paymentData, paymentReference } = paymentResponse.data;
+      const { checkoutUrl, paymentReference } = paymentResponse.data;
 
-      if (!actionUrl || !paymentData || !paymentReference) {
-        throw new Error("Invalid payment gateway response");
+      if (!checkoutUrl || !paymentReference) {
+        throw new Error("Invalid Payments.lk checkout response");
       }
 
       // ==========================================
@@ -341,16 +311,18 @@ export default function CheckOutPage() {
         }),
       );
 
-      toast.success("Redirecting to secure payment...");
+      toast.success("Redirecting to Payments.lk secure checkout...");
 
       // ==========================================
       // IMPORTANT
       //
       // Do NOT clear cart here.
       // Payment is not verified yet.
+      // The order becomes Paid only after the
+      // verified Payments.lk webhook reaches backend.
       // ==========================================
 
-      submitToPayHere(actionUrl, paymentData);
+      window.location.assign(checkoutUrl);
     } catch (error) {
       console.error("Checkout Payment Error:", error.message);
 
@@ -1483,8 +1455,8 @@ export default function CheckOutPage() {
           text-[#8b7567]
         "
                     >
-                      Payment is processed securely by PayHere. NariCraft does
-                      not store your card number or CVV.
+                      Payment is processed securely by Payments.lk. NariCraft
+                      does not store your card number or CVV.
                     </p>
                   </div>
                 </div>

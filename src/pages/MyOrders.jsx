@@ -68,34 +68,6 @@ export default function MyOrders() {
   }
 
   // =====================================================
-  // REDIRECT TO PAYHERE
-  // =====================================================
-
-  function submitToPayHere(actionUrl, paymentData) {
-    const form = document.createElement("form");
-
-    form.method = "POST";
-    form.action = actionUrl;
-
-    Object.entries(paymentData).forEach(([name, value]) => {
-      if (value == null) {
-        return;
-      }
-
-      const input = document.createElement("input");
-
-      input.type = "hidden";
-      input.name = name;
-      input.value = String(value);
-
-      form.appendChild(input);
-    });
-
-    document.body.appendChild(form);
-    form.submit();
-  }
-
-  // =====================================================
   // START CUSTOM ORDER PAYMENT
   // =====================================================
 
@@ -152,7 +124,8 @@ export default function MyOrders() {
       setIsStartingPayment(true);
 
       const response = await axios.post(
-        import.meta.env.VITE_API_URL + "/api/payments/custom/initiate",
+        import.meta.env.VITE_API_URL +
+          "/api/payments/payments-lk/custom/initiate",
         {
           customOrderId: selectedCustomOrder.customOrderId,
           paymentPlan: customPaymentPlan,
@@ -167,10 +140,10 @@ export default function MyOrders() {
         },
       );
 
-      const { actionUrl, paymentData, paymentReference } = response.data;
+      const { checkoutUrl, paymentReference } = response.data;
 
-      if (!actionUrl || !paymentData || !paymentReference) {
-        throw new Error("Invalid payment gateway response");
+      if (!checkoutUrl || !paymentReference) {
+        throw new Error("Invalid Payments.lk checkout response");
       }
 
       // Only non-sensitive temporary payment context is stored here.
@@ -184,8 +157,12 @@ export default function MyOrders() {
         }),
       );
 
-      toast.success("Redirecting to secure payment...");
-      submitToPayHere(actionUrl, paymentData);
+      toast.success("Redirecting to Payments.lk secure checkout...");
+
+      // Payment status is NOT trusted from the browser redirect.
+      // Backend updates the order only after the signed
+      // Payments.lk webhook is verified.
+      window.location.assign(checkoutUrl);
     } catch (err) {
       console.error("Custom Payment Error:", err.message);
 
@@ -2164,8 +2141,8 @@ export default function MyOrders() {
                       </button>
 
                       <p className="text-[11px] text-[#9a8273] leading-5 mt-4 text-center">
-                        Card details are entered on PayHere. NariCraft does not
-                        store your card number or CVV.
+                        Card details are entered on Payments.lk. NariCraft does
+                        not store your card number or CVV.
                       </p>
                     </div>
                   )}
