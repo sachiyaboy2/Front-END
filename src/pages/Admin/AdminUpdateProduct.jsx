@@ -1054,15 +1054,29 @@ export default function AdminUpdateProduct() {
                   >
                     <option value="">Select Category</option>
 
-                    <option value="Saree Jackets">Saree Jackets</option>
+                    <optgroup label="Fashion Collections">
+                      <option value="Saree Jackets">Saree Jackets</option>
 
-                    <option value="Blouses">Blouses</option>
+                      <option value="Blouses">Blouses</option>
 
-                    <option value="Custom Designs">Custom Designs</option>
+                      <option value="Frocks">Frocks</option>
 
-                    <option value="Premium">Premium Collection</option>
+                      <option value="Crop Tops">Crop Tops</option>
 
-                    <option value="Traditional">Traditional</option>
+                      <option value="Premium">Premium Collection</option>
+
+                      <option value="Traditional">Traditional</option>
+                    </optgroup>
+
+                    <optgroup label="Uniform & Group Orders">
+                      <option value="Preschool Uniforms">
+                        Preschool Uniforms
+                      </option>
+
+                      <option value="Association T-Shirts">
+                        Association T-Shirts
+                      </option>
+                    </optgroup>
                   </select>
                 </label>
 

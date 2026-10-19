@@ -22,6 +22,85 @@ import {
 
 import { Loader } from "../components/loader";
 
+// =====================================================
+// GARMENT / MEASUREMENT DISPLAY CONFIG
+// =====================================================
+
+const garmentDisplayConfig = {
+  "saree-jacket": {
+    label: "Saree Jacket",
+    fields: [
+      { name: "height", label: "උස (Height)" },
+      { name: "shoulder", label: "උරපතු මිනුම (Shoulder)" },
+      { name: "bust", label: "පපුව වට (Bust)" },
+      { name: "abdomen", label: "උදරයේ ප්‍රදේශ මිම්ම (Abdomen)" },
+      { name: "frontNeckDepth", label: "ඉදිරි කර ගැඹුර (Front Neck Depth)" },
+      { name: "backNeckDepth", label: "පිටුපස කර ගැඹුර (Back Neck Depth)" },
+      {
+        name: "topToBustPoint",
+        label: "ඉහළ සිට බ්‍රා මධ්‍ය ලක්ෂ්‍යය (Top to Bust Point)",
+      },
+      {
+        name: "sideToBustPoint",
+        label: "පැත්තෙන් සිට බ්‍රා මධ්‍ය ලක්ෂ්‍යය (Side to Bust Point)",
+      },
+      { name: "sleeveLength", label: "අත දිග (Sleeve Length)" },
+      { name: "sleeveCircumference", label: "අත වට (Sleeve Circumference)" },
+      { name: "armhole", label: "අත් කැපුම (Armhole)" },
+    ],
+  },
+
+  frock: {
+    label: "Frock",
+    fields: [
+      { name: "shoulder", label: "උරහිස (Shoulder)" },
+      { name: "waistLength", label: "ඉන දක්වා (Waist Length)" },
+      { name: "bust", label: "පපුව (Bust)" },
+      { name: "waist", label: "ඉන (Waist)" },
+      { name: "sleeveCircumference", label: "අත වට (Sleeve Circumference)" },
+      { name: "armhole", label: "අත් කැපුම (Armhole)" },
+      { name: "skirtLength", label: "සාය උස (Skirt Length)" },
+      { name: "frontNeckDepth", label: "ඉදිරි කර ගැඹුර (Front Neck Depth)" },
+    ],
+  },
+
+  "crop-top": {
+    label: "Crop Top",
+    fields: [
+      { name: "height", label: "උස (Height)" },
+      { name: "shoulder", label: "උරහිස (Shoulder)" },
+      { name: "waistLength", label: "ඉන දක්වා (Waist Length)" },
+      { name: "bust", label: "පපුව (Bust)" },
+      { name: "waist", label: "ඉන (Waist)" },
+      { name: "sleeveCircumference", label: "අත වට (Sleeve Circumference)" },
+      { name: "armhole", label: "අත් කැපුම (Armhole)" },
+      { name: "frontNeckDepth", label: "ඉදිරි කර ගැඹුර (Front Neck Depth)" },
+    ],
+  },
+};
+
+const legacyMeasurementFields = [
+  { name: "bust", label: "Bust" },
+  { name: "underBust", label: "Under Bust" },
+  { name: "waist", label: "Waist" },
+  { name: "shoulder", label: "Shoulder" },
+  { name: "sleeveLength", label: "Sleeve Length" },
+  { name: "sleeveCircumference", label: "Sleeve Circumference" },
+  { name: "frontNeck", label: "Front Neck" },
+  { name: "backNeck", label: "Back Neck" },
+  { name: "jacketLength", label: "Jacket Length" },
+];
+
+function getGarmentLabel(garmentType) {
+  return garmentDisplayConfig[garmentType]?.label || "Legacy Custom Design";
+}
+
+function getOrderMeasurementFields(order) {
+  return (
+    garmentDisplayConfig[order?.garmentType]?.fields || legacyMeasurementFields
+  );
+}
+
 export default function MyOrders() {
   const navigate = useNavigate();
 
@@ -990,6 +1069,13 @@ export default function MyOrders() {
                         </span>
                       </div>
 
+                      {/* GARMENT TYPE */}
+
+                      <div className="mt-5 flex items-center gap-2 text-sm text-[#6b1d2f] font-black">
+                        <FaTshirt />
+                        {getGarmentLabel(order.garmentType)}
+                      </div>
+
                       {/* SIZE TYPE */}
 
                       <div
@@ -1611,6 +1697,11 @@ export default function MyOrders() {
                     title="Customer Email"
                     value={selectedCustomOrder.email}
                   />
+
+                  <InfoCard
+                    title="Garment Type"
+                    value={getGarmentLabel(selectedCustomOrder.garmentType)}
+                  />
                 </div>
 
                 {/* MEASUREMENT TYPE */}
@@ -1708,61 +1799,18 @@ export default function MyOrders() {
 
                       "
                     >
-                      <Measurement
-                        title="Bust"
-                        value={selectedCustomOrder.measurements?.bust}
-                        unit={selectedCustomOrder.measurementUnit}
-                      />
-
-                      <Measurement
-                        title="Under Bust"
-                        value={selectedCustomOrder.measurements?.underBust}
-                        unit={selectedCustomOrder.measurementUnit}
-                      />
-
-                      <Measurement
-                        title="Waist"
-                        value={selectedCustomOrder.measurements?.waist}
-                        unit={selectedCustomOrder.measurementUnit}
-                      />
-
-                      <Measurement
-                        title="Shoulder"
-                        value={selectedCustomOrder.measurements?.shoulder}
-                        unit={selectedCustomOrder.measurementUnit}
-                      />
-
-                      <Measurement
-                        title="Sleeve Length"
-                        value={selectedCustomOrder.measurements?.sleeveLength}
-                        unit={selectedCustomOrder.measurementUnit}
-                      />
-
-                      <Measurement
-                        title="Sleeve Circumference"
-                        value={
-                          selectedCustomOrder.measurements?.sleeveCircumference
-                        }
-                        unit={selectedCustomOrder.measurementUnit}
-                      />
-
-                      <Measurement
-                        title="Front Neck"
-                        value={selectedCustomOrder.measurements?.frontNeck}
-                        unit={selectedCustomOrder.measurementUnit}
-                      />
-
-                      <Measurement
-                        title="Back Neck"
-                        value={selectedCustomOrder.measurements?.backNeck}
-                        unit={selectedCustomOrder.measurementUnit}
-                      />
-
-                      <Measurement
-                        title="Jacket Length"
-                        value={selectedCustomOrder.measurements?.jacketLength}
-                        unit={selectedCustomOrder.measurementUnit}
-                      />
+                      {getOrderMeasurementFields(selectedCustomOrder).map(
+                        (field) => (
+                          <Measurement
+                            key={field.name}
+                            title={field.label}
+                            value={
+                              selectedCustomOrder.measurements?.[field.name]
+                            }
+                            unit={selectedCustomOrder.measurementUnit}
+                          />
+                        ),
+                      )}
                     </div>
                   )}
                 </div>
