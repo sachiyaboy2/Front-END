@@ -203,8 +203,7 @@ export default function MyOrders() {
       setIsStartingPayment(true);
 
       const response = await axios.post(
-        import.meta.env.VITE_API_URL +
-          "/api/payments/payments-lk/custom/initiate",
+        import.meta.env.VITE_API_URL + "/api/payments/custom/initiate",
         {
           customOrderId: selectedCustomOrder.customOrderId,
           paymentPlan: customPaymentPlan,

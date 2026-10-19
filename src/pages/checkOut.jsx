@@ -20,6 +20,26 @@ import axios from "axios";
 import { loadCart } from "../utils/cart";
 import { Loader } from "../components/loader";
 
+function normalizeSriLankanMobile(value) {
+  const compact = String(value || "")
+    .trim()
+    .replace(/[\s()-]/g, "");
+
+  if (/^07\d{8}$/.test(compact)) {
+    return compact;
+  }
+
+  if (/^\+947\d{8}$/.test(compact)) {
+    return "0" + compact.slice(3);
+  }
+
+  if (/^947\d{8}$/.test(compact)) {
+    return "0" + compact.slice(2);
+  }
+
+  return null;
+}
+
 export default function CheckOutPage() {
   const navigate = useNavigate();
 
@@ -171,6 +191,14 @@ export default function CheckOutPage() {
       return;
     }
 
+    const normalizedPhone = normalizeSriLankanMobile(phone);
+
+    if (!normalizedPhone) {
+      toast.error("Enter a valid Sri Lankan mobile number such as 0771234567");
+
+      return;
+    }
+
     // ============================================
     // CART
     // ============================================
@@ -216,7 +244,7 @@ export default function CheckOutPage() {
     const orderData = {
       fullName: fullName.trim(),
 
-      phone: phone.trim(),
+      phone: normalizedPhone,
 
       address: address.trim(),
 
@@ -268,8 +296,7 @@ export default function CheckOutPage() {
       // ==========================================
 
       const paymentResponse = await axios.post(
-        import.meta.env.VITE_API_URL +
-          "/api/payments/payments-lk/product/initiate",
+        import.meta.env.VITE_API_URL + "/api/payments/product/initiate",
 
         {
           orderId: orderIdForPayment,
@@ -680,7 +707,9 @@ export default function CheckOutPage() {
                     />
 
                     <input
-                      type="text"
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="07X XXX XXXX"
