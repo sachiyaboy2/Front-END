@@ -1376,8 +1376,15 @@ export default function MyOrders() {
                   "
                 >
                   <InfoCard
-                    title="Status"
+                    title="Order Status"
                     value={selectedProductOrder.status}
+                  />
+
+                  <InfoCard
+                    title="Payment Status"
+                    value={
+                      selectedProductOrder.paymentStatus || "Payment Pending"
+                    }
                   />
 
                   <InfoCard
@@ -1385,6 +1392,15 @@ export default function MyOrders() {
                     value={`LKR ${
                       selectedProductOrder.totalPrice?.toLocaleString() || "0"
                     }`}
+                  />
+
+                  <InfoCard
+                    title="Paid / Remaining"
+                    value={`LKR ${Number(
+                      selectedProductOrder.paidAmount || 0,
+                    ).toLocaleString()} / LKR ${Number(
+                      selectedProductOrder.remainingAmount || 0,
+                    ).toLocaleString()}`}
                   />
                 </div>
 
